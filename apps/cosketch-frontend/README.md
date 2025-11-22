@@ -2,7 +2,7 @@
 
 CoSketch Frontend is a **real-time collaborative drawing application** built with **Next.js 15**, **React 19**, and **Bun** as the package manager. It is part of the **CoSketch monorepo** managed using **Turborepo**.
 
-## 🚀 Features
+## Features
 
 - **Real-time collaboration** with WebSockets
 - **Next.js 15** with **Turbopack** for fast development
@@ -10,7 +10,7 @@ CoSketch Frontend is a **real-time collaborative drawing application** built wit
 - **React Query 5** for state management
 - **Optimized for performance** and responsive design
 
-## 🏗 Folder Structure
+## Folder Structure
 
 ```sh
 cosketch-frontend/
@@ -34,7 +34,7 @@ cosketch-frontend/
 └── tsconfig.json # TypeScript configuration
 ```
 
-## 📦 Tech Stack
+## Tech Stack
 
 - **Next.js 15** → Frontend framework
 - **React 19** → UI library
@@ -44,7 +44,7 @@ cosketch-frontend/
 - **Lucide-react** → Icon library
 - **Zod** → Schema validation
 
-## 📜 Scripts (package.json)
+## Scripts (package.json)
 
 ```json
 {
@@ -58,7 +58,7 @@ cosketch-frontend/
 }
 ```
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### 1️⃣ Install Dependencies
 
@@ -81,8 +81,8 @@ bun run build
 bun run start
 ```
 
-## 📸 UI Preview
+## UI Preview
 
-![CoSketch UI](public/images/social-banner-4.jpeg)
+![CoSketch UI](public/images/social-banner.webp)
 
-🚀 **"Sketch Together, Think Better."**
+### **"Sketch Together, Think Better."**

@@ -4,19 +4,19 @@ CoSketch is a **real-time collaborative drawing application**, and this reposito
 
 ---
 
-## 🚀 Features
+## Features
 
-✅ **JWT-based Authentication (Signup, Signin, User Info)**  
-✅ **Room Management (Create, Join, Leave, List)**  
-✅ **Secure Password Hashing with Bcrypt**  
-✅ **Role-Based Access Control (Middleware)**  
-✅ **RESTful API Architecture**  
-✅ **PostgreSQL Database with Prisma ORM**  
-✅ **Turborepo-powered Monorepo Setup**
+- **JWT-based Authentication (Signup, Signin, User Info)**
+- **Room Management (Create, Join, Leave, List)**
+- **Secure Password Hashing with Bcrypt**
+- **Role-Based Access Control (Middleware)**
+- **RESTful API Architecture**
+- **PostgreSQL Database with Prisma ORM**
+- **Turborepo-powered Monorepo Setup**
 
 ---
 
-## 💂️ Folder Structure
+## Folder Structure
 
 ```sh
 cosketch-backend/
@@ -34,7 +34,7 @@ cosketch-backend/
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
 | **Category**        | **Technology**          |
 | ------------------- | ----------------------- |
@@ -48,7 +48,7 @@ cosketch-backend/
 
 ---
 
-## 🔧 Setup & Installation
+## Setup & Installation
 
 ### 1️⃣ Install Dependencies
 
@@ -82,7 +82,7 @@ bun run start
 
 ---
 
-## 📝 API Endpoints
+## API Endpoints
 
 ### **Authentication Routes (`/api/auth`)**
 
@@ -103,7 +103,7 @@ bun run start
 
 ---
 
-## 🔧 Available Scripts (`package.json`)
+## Available Scripts (`package.json`)
 
 ```json
 {
@@ -118,16 +118,16 @@ bun run start
 
 ---
 
-## 🛡️ Security & Best Practices
+## Security & Best Practices
 
-🔹 **JWT Authentication**: Uses secure HTTP-only cookies to store tokens.  
-🔹 **Password Hashing**: Bcrypt is used to hash and securely store passwords.  
-🔹 **CORS Protection**: API requests are restricted to trusted frontend origins.  
-🔹 **Environment Variables**: All sensitive data is stored in `.env` files.
+- **JWT Authentication**: Uses secure HTTP-only cookies to store tokens.
+- **Password Hashing**: Bcrypt is used to hash and securely store passwords.
+- **CORS Protection**: API requests are restricted to trusted frontend origins.
+- **Environment Variables**: All sensitive data is stored in `.env` files.
 
 ---
 
-## 🌟 Contributing
+## Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -139,10 +139,4 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-<!-- ## 📝 License
-
-This project is licensed under the **MIT License**.
-
---- -->
-
-🔥 **"Build, Collaborate, and Sketch Together!"**
+### **"Build, Collaborate, and Sketch Together!"**

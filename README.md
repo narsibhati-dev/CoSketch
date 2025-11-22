@@ -4,7 +4,7 @@
 
 CoSketch is a **real-time collaborative drawing application** built using **Turborepo** and **Bun**. It includes separate apps for the frontend, backend API, and WebSocket server to enable seamless collaboration.
 
-## 🎬 CoSketch Demo
+## CoSketch Demo
 
 [![Watch the CoSketch Demo](https://img.youtube.com/vi/m_uOsRsr8bw/maxresdefault.jpg)](https://www.youtube.com/watch?v=m_uOsRsr8bw)
 
@@ -16,7 +16,7 @@ Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md) to help keep 
 
 This project is licensed under the [CoSketch Custom License](./LICENSE.md).
 
-## 🏗 Project Structure
+## Project Structure
 
 This monorepo is managed using **Turborepo** and is structured as follows:
 
@@ -46,57 +46,57 @@ cosketch/
 
 ---
 
-## 🧩 Features
+## Features
 
 CoSketch offers a rich set of features for real-time collaborative sketching:
 
-- 🎨 **Shape Drawing**  
+- **Shape Drawing**  
   Supports essential diagramming shapes:
 
-  - Rectangle
-  - Ellipse
-  - Diamond
-  - Arrow
-  - Line
+- Rectangle
+- Ellipse
+- Diamond
+- Arrow
+- Line
 
-- ✏️ **Freehand Drawing**
+- **Freehand Drawing**
 
   - Draw freehand lines with customizable brush sizes and colors.
 
-- 📝 **Text Support**
+- **Text Support**
 
-  - Add text labels to your canvas with customizable colors.
+- Add text labels to your canvas with customizable colors.
 
-- ✏️ **Interactive Editing**
+- **Interactive Editing**
 
-  - Select, drag, and resize shapes with ease.
-  - Modify shape styles including color, stroke width, and fill.
+- Select, drag, and resize shapes with ease.
+- Modify shape styles including color, stroke width, and fill.
 
-- 🗑️ **Shape Management**
+- **Shape Management**
 
-  - Delete individual shapes.
-  - Clear the entire canvas with one click.
+- Delete individual shapes.
+- Clear the entire canvas with one click.
 
-- 🔄 **Real-Time Synchronization**
+- **Real-Time Synchronization**
 
-  - Update and broadcast shape and drawing state across all users using **WebSockets**.
+- Update and broadcast shape and drawing state across all users using **WebSockets**.
 
-- 🌐 **Multi-User Collaboration**
+- **Multi-User Collaboration**
 
-  - Seamless live editing experience for multiple participants.
+- Seamless live editing experience for multiple participants.
 
-- ☁️ **Persistent Storage**
+- **Persistent Storage**
 
-  - Store and retrieve all shapes and drawings from a **PostgreSQL** database via **Prisma ORM**.
+- Store and retrieve all shapes and drawings from a **PostgreSQL** database via **Prisma ORM**.
 
-- ⚙️ **Modular Architecture**
+- **Modular Architecture**
 
-  - Built with a scalable monorepo structure using **Turborepo** and **Bun**.
-  - Decoupled apps for frontend, backend, and WebSocket server.
+- Built with a scalable monorepo structure using **Turborepo** and **Bun**.
+- Decoupled apps for frontend, backend, and WebSocket server.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Follow these steps to get **CoSketch** up and running locally:
 
@@ -209,7 +209,7 @@ bun run infra:down
 
 ---
 
-## 📦 Tech Stack
+## Tech Stack
 
 - **Turborepo** → Monorepo management
 - **Bun** → Fast JavaScript package manager & runtime
@@ -224,9 +224,7 @@ bun run infra:down
 
 ---
 
-## 🗄 Database Setup
-
-### Start PostgreSQL with Docker
+## Start PostgreSQL with Docker
 
 ```sh
 bun db:up
@@ -254,7 +252,7 @@ docker exec -it <postgres_container_name> psql -U <your_db_user> -d <your_databa
 
 ---
 
-## 🚢 Deployment
+## Deployment
 
 The project includes production Docker configurations and GitHub Actions workflows for continuous deployment:
 
@@ -276,7 +274,7 @@ GitHub Actions workflows in the `.github/workflows` directory automate the deplo
 
 ---
 
-## 📜 Available Scripts
+## Available Scripts
 
 ```json
 {
@@ -319,4 +317,4 @@ bun run check-types
 
 ---
 
-🚀 **"Sketch Together, Think Better."**
+### **"Sketch Together, Think Better."**

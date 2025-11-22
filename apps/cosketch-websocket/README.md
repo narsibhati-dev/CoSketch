@@ -2,7 +2,7 @@
 
 CoSketch WebSocket is the real-time communication server for **CoSketch**, enabling collaborative sketching with instant updates using WebSockets. Built with **Bun** for performance and efficiency.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1️⃣ Install Dependencies
 
@@ -46,13 +46,13 @@ co-sketch-websocket/
 └── README.md         # Documentation
 ```
 
-## 📦 Tech Stack
+## Tech Stack
 
 - **Bun** → Fast JavaScript runtime
 - **WebSockets** → Real-time bidirectional communication
 - **TypeScript** → Ensuring type safety
 
-## 📜 Scripts (package.json)
+## Scripts (package.json)
 
 ```json
 {
@@ -64,7 +64,7 @@ co-sketch-websocket/
 }
 ```
 
-## 🔧 To-Do
+## To-Do
 
 - [ ] Implement event handling for real-time sketch updates
 - [ ] Optimize WebSocket message handling
@@ -72,4 +72,4 @@ co-sketch-websocket/
 
 ---
 
-🚀 **"Sketch Together, Think Better."**
+### **"Sketch Together, Think Better."**
