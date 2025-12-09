@@ -21,7 +21,7 @@ export const LogoutDialogBox = ({ onClose, isOpen }: LogoutDialogBoxProps) => {
 
   return (
     <section
-      className='fixed inset-0 z-[1100] flex h-screen items-center justify-center bg-black/30 backdrop-blur-md'
+      className='fixed inset-0 z-1100 flex h-screen items-center justify-center bg-black/30 backdrop-blur-md'
       onClick={() => {
         onClose(false);
       }} // Close when clicking outside

@@ -68,7 +68,7 @@ export default function RootLayout({
       <meta name='apple-mobile-web-app-title' content='CoSketch' />
       <link rel='manifest' href='/favicons/site.webmanifest' />
 
-      <body className={`${space_grotesk.className} scroll-smooth antialiased `}>
+      <body className={`${space_grotesk.className} scroll-smooth antialiased`}>
         <ReactQueryProvider>
           {children}
           <Toaster position='top-right' reverseOrder={false} />

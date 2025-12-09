@@ -1,15 +1,15 @@
 name: CoSketch websocket
 
-on: 
-  push: 
-    branches: [ master ]
-    paths: 
-      - 'apps/cosketch-websocket/**'
-      - 'packages/**'
-      - '.github/workflows/cd_websocket.yml'
+on:
+  push:
+    branches: [production]
+    paths:
+      - "apps/cosketch-websocket/**"
+      - "packages/**"
+      - ".github/workflows/cd_websocket.yml"
 
-jobs: 
-  build: 
+jobs:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code websocket

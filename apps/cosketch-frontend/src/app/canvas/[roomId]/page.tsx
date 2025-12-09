@@ -10,7 +10,7 @@ const CanvasPage = () => {
 
   return (
     <ProtectCanvasRoute roomId={roomId}>
-      <section className='h-[100vh] overflow-hidden'>
+      <section className='h-screen overflow-hidden'>
         <Canvas roomId={roomId} />
       </section>
     </ProtectCanvasRoute>
