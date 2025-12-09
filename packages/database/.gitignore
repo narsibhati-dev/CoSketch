@@ -6,6 +6,9 @@ out
 dist
 *.tgz
 
+# generated Prisma client
+src/generated
+
 # code coverage
 coverage
 *.lcov

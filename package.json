@@ -21,7 +21,7 @@
     "check-types": "turbo run check-types",
     "db:up": "docker-compose -f docker/db.docker-compose.yml up -d",
     "db:down": "docker-compose -f docker/db.docker-compose.yml down",
-    "infra:build": "docker-compose -f docker-compose.yml build",
+    "infra:build": "docker-compose -f docker-compose.yml build --no-cache",
     "infra:up": "docker-compose -f docker-compose.yml up -d",
     "infra:down": "docker-compose -f docker-compose.yml down",
     "db:deploy": "turbo run db:deploy",
