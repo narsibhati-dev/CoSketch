@@ -8,12 +8,12 @@
         "react-spinners": "^0.15.0",
       },
       "devDependencies": {
-        "@types/bun": "^1.2.5",
-        "@types/lodash": "^4.17.16",
-        "prettier": "^3.5.3",
-        "turbo": "^2.4.4",
+        "@types/bun": "^1.3.4",
+        "@types/lodash": "^4.17.21",
+        "prettier": "^3.7.4",
+        "turbo": "^2.6.3",
         "typescript": "5.8.2",
-        "zod": "^3.24.2",
+        "zod": "^3.25.76",
       },
     },
     "apps/cosketch-backend": {

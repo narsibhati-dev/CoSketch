@@ -20,7 +20,8 @@ ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
 COPY ../package.json ./package.json
 COPY ../bun.lock ./bun.lock
 COPY ../turbo.json ./turbo.json
-COPY ../packages ./packages
+
+COPY ../packages/types ./packages/types
 COPY ../apps/cosketch-frontend ./apps/cosketch-frontend
 
 # Install dependencies

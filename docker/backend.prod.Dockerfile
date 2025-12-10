@@ -13,7 +13,10 @@ ENV DATABASE_URL=$DATABASE_URL
 COPY ../package.json ./package.json
 COPY ../bun.lock ./bun.lock
 COPY ../turbo.json ./turbo.json
-COPY ../packages ./packages
+
+COPY ../packages/backend-common ./packages/backend-common
+COPY ../packages/types ./packages/types
+COPY ../packages/database ./packages/database
 COPY ../apps/cosketch-backend ./apps/cosketch-backend
 
 # Install deps

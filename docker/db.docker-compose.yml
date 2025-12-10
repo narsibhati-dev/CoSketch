@@ -2,16 +2,16 @@
 services:
   postgres:
     image: postgres:16
-    container_name: local_postgres
+    container_name: cosketch-database
     restart: always
     environment:
-      POSTGRES_USER: narsi
+      POSTGRES_USER: cosketch
       POSTGRES_PASSWORD: secretpassword
       POSTGRES_DB: cosketch
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - cosketch-database-data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  cosketch-database-data:

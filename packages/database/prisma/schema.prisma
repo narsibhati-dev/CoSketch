@@ -15,36 +15,35 @@ model User {
   photo     String?
   createdAt DateTime @default(now())
 
-  adminOf   Room[]   @relation("RoomAdmin") // Rooms where user is admin
-  rooms     Room[]   @relation("RoomUsers") // Many-to-many room membership
-  canvas    Canvas[] // User's canvas designs
-
+  adminOf Room[]   @relation("RoomAdmin") // Rooms where user is admin
+  rooms   Room[]   @relation("RoomUsers") // Many-to-many room membership
+  canvas  Canvas[] // User's canvas designs
 
   @@index([id])
 }
 
 model Room {
-  id        String      @id @default(cuid())
-  slug      String      @unique
-  createdAt DateTime    @default(now())
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  createdAt DateTime @default(now())
   adminId   String
 
-  admin     User     @relation(fields: [adminId], references: [id], name: "RoomAdmin") // Relationship with admin
-  users     User[]   @relation("RoomUsers") // Many-to-many relationship
-  canvas    Canvas[]
+  admin  User     @relation(fields: [adminId], references: [id], name: "RoomAdmin") // Relationship with admin
+  users  User[]   @relation("RoomUsers") // Many-to-many relationship
+  canvas Canvas[]
 
-  @@index([id,adminId])
+  @@index([id, adminId])
 }
 
 model Canvas {
-  id        String   @id 
+  id        String   @id
   roomId    String
   userId    String
-  design    Json 
+  design    Json
   createdAt DateTime @default(now())
 
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  room      Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  @@index([roomId,userId])
+  @@index([roomId, userId])
 }
