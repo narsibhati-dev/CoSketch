@@ -20,10 +20,10 @@
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.0",
+    "@prisma/client": "^7.2.0",
     "@repo/types": "*",
     "bun": "^1.2.9",
     "pg": "^8.13.0",
-    "prisma": "^7.0.0"
+    "prisma": "^7.2.0"
   }
 }
