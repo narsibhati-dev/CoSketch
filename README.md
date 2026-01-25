@@ -1,12 +1,16 @@
 # CoSketch
 
-![CoSketch banner](https://github.com/NarsiBhati-Dev/CoSketch/blob/master/apps/cosketch-frontend/public/images/social-banner.webp?raw=true)
+![CoSketch banner](https://github.com/NarsiBhati-Dev/CoSketch/blob/master/assets/social-banner.webp?raw=true)
 
 CoSketch is a **real-time collaborative drawing application** built using **Turborepo** and **Bun**. It includes separate apps for the frontend, backend API, and WebSocket server to enable seamless collaboration.
 
 ## CoSketch Demo
 
 [![Watch the CoSketch Demo](https://img.youtube.com/vi/m_uOsRsr8bw/maxresdefault.jpg)](https://www.youtube.com/watch?v=m_uOsRsr8bw)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=NarsiBhati-Dev/cosketch&type=date&legend=top-left)](https://www.star-history.com/#NarsiBhati-Dev/cosketch&type=date&legend=top-left)
 
 ## Code of Conduct
 
@@ -60,7 +64,6 @@ CoSketch offers a rich set of features for real-time collaborative sketching:
 - Line
 
 - **Freehand Drawing**
-
   - Draw freehand lines with customizable brush sizes and colors.
 
 - **Text Support**
