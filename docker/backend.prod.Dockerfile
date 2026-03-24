@@ -10,14 +10,14 @@ ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
 # Copy necessary files for dependency installation
-COPY ../package.json ./package.json
-COPY ../bun.lock ./bun.lock
-COPY ../turbo.json ./turbo.json
+COPY package.json ./package.json
+COPY bun.lock ./bun.lock
+COPY turbo.json ./turbo.json
 
-COPY ../packages/backend-common ./packages/backend-common
-COPY ../packages/types ./packages/types
-COPY ../packages/database ./packages/database
-COPY ../apps/cosketch-backend ./apps/cosketch-backend
+COPY packages/backend-common ./packages/backend-common
+COPY packages/types ./packages/types
+COPY packages/database ./packages/database
+COPY apps/cosketch-backend ./apps/cosketch-backend
 
 # Install deps
 RUN bun install

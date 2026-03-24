@@ -17,12 +17,12 @@ ENV NEXT_PUBLIC_HTTP_URL=$NEXT_PUBLIC_HTTP_URL
 ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
 
 # Copy necessary files for dependency installation
-COPY ../package.json ./package.json
-COPY ../bun.lock ./bun.lock
-COPY ../turbo.json ./turbo.json
+COPY package.json ./package.json
+COPY bun.lock ./bun.lock
+COPY turbo.json ./turbo.json
 
-COPY ../packages/types ./packages/types
-COPY ../apps/cosketch-frontend ./apps/cosketch-frontend
+COPY packages/types ./packages/types
+COPY apps/cosketch-frontend ./apps/cosketch-frontend
 
 # Install dependencies
 RUN bun install

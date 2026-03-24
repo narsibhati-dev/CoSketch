@@ -1,0 +1,169 @@
+---
+title: "Inside CoSketch's Docker & Docker Compose Architecture"
+description: "A conceptual tour of how CoSketch uses Docker, Docker Compose, Bun, and Turborepo to run the frontend, backend API, WebSocket server, and PostgreSQL database."
+date: "2026-01-29"
+tags:
+  - docker
+  - docker-compose
+  - infrastructure
+  - architecture
+  - cosketch
+---
+
+## Why CoSketch cares about containers
+
+CoSketch is a real-time collaborative whiteboard with a rich frontend, an HTTP backend, a WebSocket server, and a PostgreSQL database. Running all of these pieces consistently across machines is hard if you rely only on local tooling, language runtimes, and environment configuration.
+
+Containers give CoSketch a **repeatable, declarative runtime** for each service. Docker images built from the production Dockerfiles in `docker/` can be launched locally, in CI, or in production with predictable behavior. Docker Compose then layers orchestration on top, wiring the services together and defining how they start and talk to each other.
+
+> [Image placeholder: High-level Docker architecture diagram – frontend, backend, websocket, database, and network links]
+
+## The containerized services in CoSketch
+
+At a conceptual level, CoSketch runs four main services in containers:
+
+- **Frontend (Next.js + React)**: the user-facing app in `apps/cosketch-frontend/`.
+- **Backend API (REST)**: the HTTP API implemented in `apps/cosketch-backend/`.
+- **WebSocket server**: a dedicated real-time collaboration service in `apps/cosketch-websocket/`.
+- **PostgreSQL database**: the persistent data store managed via the `packages/database` package and Prisma migrations.
+
+Each of the application services is built using a dedicated production Dockerfile in the `docker/` directory:
+
+- `docker/backend.prod.Dockerfile`
+- `docker/frontend.prod.Dockerfile`
+- `docker/websocket.prod.Dockerfile`
+
+These Dockerfiles encapsulate how code is copied, dependencies are installed, and the runtime entrypoint is defined for each service.
+
+> [Image placeholder: Service-level diagram – each Dockerfile producing an image, then services connecting to Postgres]
+
+## Reading the production Dockerfiles
+
+Even without looking at every line, it helps to build a mental model of what the Dockerfiles in `docker/` are doing.
+
+### Backend image (`backend.prod.Dockerfile`)
+
+The backend service at `apps/cosketch-backend/` exposes REST endpoints for authentication, rooms, and canvas persistence. Conceptually, the backend Dockerfile:
+
+- **Selects a base image** with Node/Bun that matches the backend’s runtime.
+- **Copies the monorepo or relevant app subtree** into the image.
+- **Installs dependencies** for the backend and any shared packages (such as `packages/database` and `packages/backend-common`).
+- **Runs build scripts** (driven by Turborepo at the root `package.json`) to emit compiled JavaScript.
+- **Defines an entrypoint** that starts the backend server (often `bun run start` or similar) and binds to the container’s HTTP port.
+
+From the codebase perspective, this image is responsible for serving logic found under:
+
+- `apps/cosketch-backend/src/server.ts`
+- `apps/cosketch-backend/src/routes/*`
+- `apps/cosketch-backend/src/controllers/*`
+
+### Frontend image (`frontend.prod.Dockerfile`)
+
+The frontend service at `apps/cosketch-frontend/` is a Next.js app. Its Dockerfile typically:
+
+- Builds the Next.js app using the monorepo build pipeline (Turborepo).
+- Produces optimized static assets and server-side bundles.
+- Uses a runtime image with only the pieces needed to serve the built app.
+
+Conceptually, that means the Dockerfile:
+
+- Installs dependencies for the frontend app and shared packages.
+- Runs a build command such as `bun run build` or a Turborepo target that triggers the Next.js production build.
+- Sets the entrypoint to run the Next.js server (or a minimal Node/Bun process that serves the built output).
+
+This image serves application code from:
+
+- `apps/cosketch-frontend/src/app/**`
+- Canvas UI components in `apps/cosketch-frontend/src/components/canvas/**`
+- Hooks, stores, and other frontend helpers under `apps/cosketch-frontend/src/**`.
+
+### WebSocket image (`websocket.prod.Dockerfile`)
+
+Real-time collaboration in CoSketch is handled by the WebSocket server in `apps/cosketch-websocket/`. This Dockerfile:
+
+- Focuses on the WebSocket process and its dependencies.
+- Copies the relevant source (`apps/cosketch-websocket/src/**`) into the image.
+- Installs only what is needed to run the WebSocket server.
+- Exposes the WebSocket port and defines an entrypoint to start `server.ts`.
+
+From the code, the WebSocket image is the runtime home for:
+
+- `apps/cosketch-websocket/src/server.ts`
+- Handlers in `apps/cosketch-websocket/src/handlers/**`
+- Auth and token utilities in `apps/cosketch-websocket/src/services/**`
+
+> [Image placeholder: Sequence diagram – client connects to frontend → WebSocket upgrade → collaboration messages flow]
+
+## Docker Compose: composing the stack
+
+While Dockerfiles describe **how to build images**, Docker Compose describes **how to run them together**. CoSketch uses:
+
+- A root `docker-compose.yml` for orchestrating the main stack.
+- `docker/db.docker-compose.yml` (and related files) for database-focused or infrastructure-only scenarios.
+
+Conceptually, `docker-compose.yml` defines:
+
+- **Services**: frontend, backend, websocket, and database containers.
+- **Networks**: how containers discover each other (service names become hostnames).
+- **Volumes**: persistence for PostgreSQL data.
+- **Environment variables**: configuration such as database URLs, JWT secrets, and frontend API endpoints.
+
+The application services referenced in the Compose file are built from the images whose definitions live in:
+
+- `docker/frontend.prod.Dockerfile`
+- `docker/backend.prod.Dockerfile`
+- `docker/websocket.prod.Dockerfile`
+
+> [Image placeholder: Compose topology diagram – services and a shared bridge network]
+
+## Bun and Turborepo inside containers
+
+CoSketch uses **Bun** and **Turborepo** at the monorepo root to manage builds and scripts. The root `package.json` contains scripts that orchestrate infra and dev flows, such as:
+
+- `infra:up`
+- `infra:down`
+- `db:up`
+- `db:down`
+
+In a Dockerized environment, Bun and Turborepo serve two main purposes:
+
+- **Build orchestration**: A single Turborepo target can build multiple apps (`cosketch-backend`, `cosketch-frontend`, `cosketch-websocket`) and shared packages (`packages/database`, `packages/types`, etc.) before images are finalized.
+- **Unified commands**: The same scripts can be used locally and in CI to ensure that images are always built in a consistent way.
+
+From a conceptual standpoint, the Dockerfiles often:
+
+1. Install Bun and dependencies once at the root.
+2. Run Turborepo build commands to compile all relevant apps.
+3. Copy only the compiled output and necessary runtime files into the final image layers.
+
+This keeps runtime images smaller and builds deterministic across environments.
+
+## Local vs. production container flows
+
+Even if you run CoSketch differently in local development and in production, the mental model is similar:
+
+- **Local dev**:
+  - You may run some services directly with `bun dev` or similar commands.
+  - Compose is often used for the database and sometimes for the full stack when you want environment parity.
+- **Production**:
+  - All application services run as containers built from the production Dockerfiles.
+  - Docker Compose (or an orchestrator like Kubernetes) manages replicas, restarts, and shared networks.
+
+The root `docker-compose.yml` is effectively a **declarative recipe** for a full CoSketch stack, which can anchor both environments.
+
+> [Image placeholder: Flow diagram – developer machine vs. production cluster using the same images]
+
+## Lessons learned & design trade-offs
+
+- **Image boundaries matter**: Separating frontend, backend, and WebSocket into distinct images mirrors their responsibilities in the codebase and allows independent scaling.
+- **Monorepo + Docker**: Using Turborepo and shared packages (`packages/database`, `packages/types`) means Docker builds need to be aware of the workspace structure, but the payoff is consistent types and logic across services.
+- **Compose as documentation**: The `docker-compose.yml` file is not just an orchestration tool—it doubles as executable documentation for how CoSketch’s services relate.
+
+## What’s next
+
+Future improvements to CoSketch’s container story might include:
+
+- Adding health checks and better observability into the images (e.g., `/healthz` endpoints and metrics scraping).
+- Splitting build and runtime stages further to minimize image size.
+- Introducing more sophisticated orchestration (Kubernetes, Nomad, etc.) using the existing images as a foundation.
+

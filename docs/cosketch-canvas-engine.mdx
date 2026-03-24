@@ -1,0 +1,176 @@
+---
+title: "How CoSketch's Canvas Engine Works"
+description: "A conceptual walkthrough of the CoSketch canvas engine, from pointer events to state stores and React rendering."
+date: "2026-01-29"
+tags:
+  - canvas
+  - architecture
+  - frontend
+  - state-management
+  - cosketch
+---
+
+## Why a dedicated canvas engine?
+
+CoSketch is more than a static drawing board: it needs to support real-time collaboration, multiple shapes and tools, smooth interactions, and synchronization over WebSockets. To manage that complexity, the project centralizes all drawing logic in a **canvas engine** instead of scattering the rules across React components.
+
+The engine pipeline in `apps/cosketch-frontend/src/canvas_engine/` defines how pointer events become shapes on the screen. React components in `apps/cosketch-frontend/src/components/canvas/` focus on UI and layout, while state stores in `apps/cosketch-frontend/src/stores/` keep the shared canvas state consistent and serializable.
+
+> [Image placeholder: Canvas event flow diagram – pointer events → engine → stores → React components]
+
+## The core engine modules
+
+The canvas engine is implemented as a set of focused modules under `apps/cosketch-frontend/src/canvas_engine/`:
+
+- [`CanvasEngine.ts`](apps/cosketch-frontend/src/canvas_engine/CanvasEngine.ts): orchestrates tools, shapes, and event handling.
+- [`SelectionManager.ts`](apps/cosketch-frontend/src/canvas_engine/SelectionManager.ts): encapsulates logic for tracking and manipulating selected shapes.
+- [`eraser.ts`](apps/cosketch-frontend/src/canvas_engine/eraser.ts): provides erasing behavior and hit-testing helpers.
+
+From a conceptual standpoint, `CanvasEngine` is the **central coordinator**:
+
+- It receives low-level pointer events from React components (`pointerdown`, `pointermove`, `pointerup`).
+- It consults the **current tool** and canvas state to decide what to do (draw, move, resize, erase, select).
+- It updates one or more shared stores to reflect the new canvas state.
+
+`SelectionManager` and `eraser` are specialized collaborators that plug into this flow, but they do not render UI themselves.
+
+## State stores: the source of truth
+
+The canvas engine heavily relies on a set of dedicated stores under `apps/cosketch-frontend/src/stores/`:
+
+- [`tool.store.ts`](apps/cosketch-frontend/src/stores/tool.store.ts)
+- [`canvas.store.ts`](apps/cosketch-frontend/src/stores/canvas.store.ts)
+- [`canvas_style.store.ts`](apps/cosketch-frontend/src/stores/canvas_style.store.ts)
+- [`shape_selected.store.ts`](apps/cosketch-frontend/src/stores/shape_selected.store.ts)
+
+At a high level, each store has a distinct responsibility:
+
+- **Tool store (`tool.store.ts`)**: which tool is active (e.g., rectangle, ellipse, diamond, arrow, line, freehand, text, eraser, move).
+- **Canvas store (`canvas.store.ts`)**: the actual shapes, their geometry, and any serialized representation of the canvas.
+- **Canvas style store (`canvas_style.store.ts`)**: stroke color, fill color, line width, and other styling options.
+- **Selection store (`shape_selected.store.ts`)**: which shapes are currently selected and how they are being manipulated.
+
+React components subscribe to these stores to stay in sync, while the canvas engine writes updates to them in response to user actions and incoming collaboration events.
+
+> [Image placeholder: State diagram – tool store, canvas store, canvas_style store, and selection store with arrows between them]
+
+## From pointer events to shapes
+
+The pipeline from a user’s pointer event to a rendered shape is conceptually straightforward but implemented with many moving parts.
+
+### 1. UI captures the event
+
+React components in `apps/cosketch-frontend/src/components/canvas/` (such as `canvas.tsx`, toolbar, and sidebar) are responsible for attaching event listeners to the drawing surface. When a user interacts with the canvas:
+
+- `pointerdown` marks the beginning of a gesture.
+- `pointermove` tracks the gesture over time (for drawing or dragging).
+- `pointerup` finalizes the gesture and commits changes.
+
+These components do not interpret the event in terms of shapes. Instead, they call into `CanvasEngine` with a normalized event object.
+
+For example, a simplified handler might look like:
+
+```tsx
+canvasEngine.handlePointerDown({
+  x: event.clientX,
+  y: event.clientY,
+  pointerId: event.pointerId,
+});
+```
+
+### 2. Engine consults the current tool
+
+Inside `CanvasEngine`, the next step is to determine what the user intends to do by checking the active tool from `tool.store.ts`. The logic is conceptually:
+
+```ts
+const currentTool = toolStore.getState().currentTool;
+
+switch (currentTool) {
+  case "rectangle":
+    // start a new rectangle
+    break;
+  case "arrow":
+    // start a new arrow
+    break;
+  case "text":
+    // place or edit text
+    break;
+  case "eraser":
+    // delegate to eraser behavior
+    break;
+  case "selection":
+    // delegate to SelectionManager
+    break;
+}
+```
+
+Each tool has its own conventions:
+
+- **Rectangle / ellipse / diamond**: usually start from an origin point and expand as the pointer moves.
+- **Arrow / line**: defined by a start and end point.
+- **Freehand**: a polyline or spline constructed from many pointer samples.
+- **Text**: placing a text box and then managing text editing separately.
+
+### 3. Updating the stores
+
+As the engine interprets pointer events, it updates the relevant stores:
+
+- New shapes are added to `canvas.store.ts`.
+- Style information is pulled from `canvas_style.store.ts` and attached to shapes.
+- Selection state may be updated in `shape_selected.store.ts` if the tool implies selection changes.
+
+Because stores are the source of truth, React components re-render automatically as the data changes, and the WebSocket layer can serialize store changes for collaboration.
+
+## UI components around the engine
+
+The React components in `apps/cosketch-frontend/src/components/canvas/` provide the user-facing controls that drive the engine:
+
+- Toolbar and buttons in `components/canvas/toolbar/` let users choose tools and actions.
+- Sidebar components in `components/canvas/sidebar/` expose shape and color options.
+- Footer components in `components/canvas/footer/` manage zoom, status indicators, and encryption display.
+
+These components:
+
+- Read from stores (e.g., which tool is active, current zoom level).
+- Dispatch actions to change store values (e.g., selecting a new tool or color).
+- Call engine methods when significant pointer or keyboard events occur.
+
+The key design decision is that the **React layer is thin**: it owns DOM and layout, while the engine and stores own business logic and state.
+
+> [Image placeholder: Component diagram – toolbar/sidebar/footer and a central canvas engine box]
+
+## Shapes and internal primitives
+
+While the exact shape models live in the code, conceptually each visual object on the canvas is represented as a **shape primitive** with:
+
+- A type (rectangle, ellipse, diamond, arrow, line, freehand, text).
+- Geometry (position, size, path data).
+- Style (stroke color, fill color, line width, opacity).
+- Metadata (e.g., ID, timestamps, ownership or author).
+
+The engine adds and mutates these primitives within the canvas store as tools are used. For example:
+
+- Drawing a rectangle creates a new rectangle primitive and updates it during `pointermove`.
+- Moving a group of shapes updates their positions while preserving IDs so other clients can reconcile changes.
+- Text primitives may contain additional fields for the text content and font properties.
+
+Because shapes are plain data objects, they are easy to:
+
+- Serialize over WebSockets.
+- Persist via the backend API.
+- Re-apply when clients reconnect.
+
+## Lessons learned & design trade-offs
+
+- **Separation of concerns**: Keeping canvas logic in `canvas_engine` and state in stores helps avoid React components becoming overly complex and difficult to test.
+- **Data-first design**: Representing shapes as serializable data structures makes collaboration and persistence natural but requires more discipline in versioning the shape schema.
+- **Tool-centric interaction**: Routing all input through the current tool simplifies reasoning about behavior, but it adds a layer of indirection that developers must learn.
+
+## What’s next
+
+Future evolution of the canvas engine might include:
+
+- More sophisticated snapping and alignment features, implemented as separate modules that hook into `CanvasEngine`.
+- A richer plugin system for tools so new shapes and behaviors can be added without changing core engine code.
+- Optimizations for very large canvases, including offscreen rendering and more granular updates to minimize re-renders.
+

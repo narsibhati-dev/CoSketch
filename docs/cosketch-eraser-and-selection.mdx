@@ -1,0 +1,201 @@
+---
+title: "Eraser & Selection Mechanics in CoSketch"
+description: "A deep dive into how CoSketch handles erasing and selecting shapes in its canvas engine, and how those changes propagate to collaborators."
+date: "2026-01-29"
+tags:
+  - canvas
+  - eraser
+  - selection
+  - collaboration
+  - cosketch
+---
+
+## Why erasing and selection are hard problems
+
+On a simple drawing app, an eraser might just paint white pixels and selection might be little more than a single highlighted object. CoSketch, however, needs to support:
+
+- **Multiple shape types** (rectangles, ellipses, diamonds, arrows, lines, freehand paths, text).
+- **Real-time collaboration**, where changes must be synchronized over WebSockets.
+- **Consistent state** across the frontend stores, backend persistence, and other clients.
+
+To achieve this, CoSketch centralizes eraser and selection behavior in the canvas engine modules:
+
+- `apps/cosketch-frontend/src/canvas_engine/eraser.ts`
+- `apps/cosketch-frontend/src/canvas_engine/SelectionManager.ts`
+
+These modules work with shared stores and the WebSocket layer to transform user gestures into deterministic, shareable canvas updates.
+
+> [Image placeholder: Diagram of an eraser hitbox overlapping multiple shapes]
+
+## Eraser behavior in `eraser.ts`
+
+The `eraser.ts` module is responsible for turning a user’s erasing gesture into updates on the underlying shapes. Conceptually, the eraser tool:
+
+- Tracks the pointer path while the eraser is active.
+- Builds a **hitbox region** around the pointer path (often a circle or rectangle sized by eraser thickness).
+- Performs hit-testing against shapes and freehand paths intersecting the hitbox.
+- Updates the canvas store to remove or modify affected shapes.
+
+The eraser works hand-in-hand with the active tool logic in `CanvasEngine.ts`:
+
+- When the current tool is `"eraser"`, pointer events are routed to eraser-specific handlers.
+- The eraser module receives information about the pointer’s position and the current canvas state.
+- It computes which shapes are impacted and returns a set of changes for the engine to apply to stores.
+
+At a high level, the eraser flow looks like this:
+
+```ts
+// Pseudocode for eraser integration
+canvasEngine.handlePointerMove(event, () => {
+  if (toolStore.getState().currentTool === "eraser") {
+    const changes = eraser.computeEraseChanges({
+      pointerPath,
+      shapes: canvasStore.getState().shapes,
+    });
+
+    canvasStore.getState().applyChanges(changes);
+  }
+});
+```
+
+The actual implementation may use more efficient data structures and batch updates to minimize re-renders and network chatter, but the conceptual pipeline remains the same.
+
+## Hit-testing shapes and freehand paths
+
+Hit-testing is the process of determining which shapes the eraser intersects. CoSketch must support:
+
+- **Geometric shapes** (rectangles, ellipses, diamonds).
+- **Linear shapes** (arrows, lines).
+- **Freehand paths**, typically represented as polylines.
+
+For each shape type, `eraser.ts` or related utilities can use:
+
+- **Bounding box checks** as a cheap first filter.
+- **More precise geometry checks** (e.g., distance from a line segment, point-in-ellipse tests, or polyline distance sampling).
+
+For freehand paths, the common pattern is:
+
+- Sample the path as a sequence of points.
+- For each eraser sample point or segment, check if the distance to any path segment is below an eraser threshold.
+- If the path is partially erased, either:
+  - Split it into multiple smaller paths, or
+  - Remove it entirely if the majority is hit (depending on UX decisions).
+
+The result of hit-testing is a list of shapes (and sometimes sub-paths) that need to be updated or removed from the canvas store.
+
+> [Image placeholder: Diagram showing eraser samples and a freehand path with distance checks]
+
+## Updating shared canvas state on erase
+
+Once `eraser.ts` identifies the impacted shapes, it transforms that information into state updates:
+
+- **Shape deletion**: shapes fully covered by the eraser hitbox are removed from `canvas.store.ts`.
+- **Shape modification**: paths or complex shapes may be trimmed or split, resulting in a set of new primitives replacing the old one.
+- **Selection cleanup**: any shapes currently selected that are erased must also be removed from the selection state in `shape_selected.store.ts`.
+
+Because the stores are the single source of truth, all downstream systems see the same result:
+
+- React components re-render without the erased shapes.
+- The WebSocket synchronization layer serializes the changes and sends them to other clients.
+- The backend can persist the updated canvas representation.
+
+From the engine’s perspective, erasing is just another state transition on the same shape model used for drawing and moving.
+
+## Selection mechanics via `SelectionManager.ts`
+
+Selection is managed by the `SelectionManager` module in `apps/cosketch-frontend/src/canvas_engine/SelectionManager.ts`. This module encapsulates:
+
+- How the app decides what is "currently selected".
+- How bounding boxes and drag handles are computed.
+- How multi-select and group operations work.
+
+The typical selection lifecycle goes through several conceptual states:
+
+1. **Idle**: no active selection, or selection is present but not being modified.
+2. **Hover**: the pointer is over a shape or a selection handle, highlighting potential actions.
+3. **Selected**: one or more shapes are selected; a bounding box and handles may be shown.
+4. **Dragging / Resizing**: the user drags the selection or a handle to move or resize shapes.
+
+`SelectionManager` works closely with:
+
+- `shape_selected.store.ts` for storing selected IDs and transient selection metadata.
+- `canvas.store.ts` for reading the latest positions and sizes of shapes.
+- `tool.store.ts` to interpret intent (e.g., whether the user is using a selection tool or a direct manipulation tool).
+
+> [Image placeholder: Flowchart of selection states – idle → hover → selected → dragging → idle]
+
+## Bounding boxes, handles, and multi-select
+
+To provide a good UX, CoSketch uses bounding boxes and drag handles around selections:
+
+- For a single shape, the bounding box closely wraps that shape.
+- For multiple shapes, the box encompasses all selected shapes.
+
+`SelectionManager` computes this envelope by:
+
+- Reading the geometry from `canvas.store.ts` for all selected shapes.
+- Computing the min/max of x and y coordinates to form a bounding rectangle.
+- Deriving handle positions (corners, edges, possibly rotation handles).
+
+Multi-select can be initiated by:
+
+- Clicking while holding a modifier key (e.g., Shift).
+- Dragging a marquee (selection rectangle) that intersects multiple shapes.
+
+The resulting selection is stored in `shape_selected.store.ts`, which might include:
+
+- A list of selected shape IDs.
+- The current bounding box.
+- Flags for whether the user is currently dragging, resizing, or rotating.
+
+The engine then applies transformations (translation, scaling, rotation) to the underlying shapes when the user drags the selection or a handle, updating `canvas.store.ts` accordingly.
+
+## Interactions between selection and tools
+
+Selection doesn’t exist in isolation; it interacts with other tools:
+
+- **Move / selection tool**: directly manipulates selected shapes.
+- **Style tools**: changes color, stroke width, or other properties of the selection via `canvas_style.store.ts`.
+- **Delete / eraser tools**:
+  - A delete action may remove all selected shapes at once.
+  - The eraser may implicitly change the current selection if it modifies or removes shapes under the cursor.
+
+`SelectionManager` and `eraser.ts` must coordinate to keep the selection store consistent when shapes are modified or removed. For example:
+
+- If a selected shape is erased, `shape_selected.store.ts` must remove that shape ID from the selection.
+- If a shape is split into multiple shapes, the selection state may choose to select the new shapes or clear the selection depending on UX rules.
+
+This coordination ensures that users never see stale handles or bounding boxes attached to shapes that no longer exist.
+
+## WebSocket synchronization of erasing and selection
+
+CoSketch uses the WebSocket server in `apps/cosketch-websocket/` to keep multiple clients in sync. While exact message formats are defined in the code, conceptually:
+
+- The frontend sends **canvas update messages** when:
+  - Shapes are added, moved, resized, or deleted.
+  - Eraser operations result in shape modifications.
+- Other clients apply these updates to their own stores, reproducing the same erasing and selection state transitions.
+
+Selection state itself may or may not be fully synchronized (depending on design), but the **underlying shape updates definitely are**. For example:
+
+- If you erase part of a freehand stroke, your client computes the resulting shapes and sends a message describing those changes.
+- Other clients remove or adjust the same shapes in their canvas store, even if their local selection differs.
+
+This design keeps the core canvas data model consistent across all participants, while allowing some local freedom (such as independent selection state).
+
+> [Image placeholder: Diagram showing one client erasing, WebSocket server relaying updates, and other clients applying them]
+
+## Lessons learned & design trade-offs
+
+- **Geometry vs. UX**: Accurate hit-testing and shape splitting can be complex; CoSketch balances precision with performance and a reasonable mental model for users.
+- **State consistency**: Centralizing shape and selection state in stores simplifies reasoning, but requires careful coordination between eraser, selection, and other tools.
+- **Collaboration granularity**: Sending fine-grained canvas updates over WebSockets enables smooth collaboration but must be batched or compressed to avoid overwhelming the network.
+
+## What’s next
+
+Potential future improvements to eraser and selection mechanics in CoSketch include:
+
+- More advanced partial-erasing behavior for freehand strokes with visual previews.
+- Improved visual feedback for multi-select (e.g., per-shape outlines plus a group box).
+- Conflict resolution strategies when multiple collaborators erase or modify the same shapes simultaneously.
+

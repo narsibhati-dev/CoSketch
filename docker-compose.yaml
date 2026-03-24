@@ -28,14 +28,14 @@ services:
       context: .
       dockerfile: docker/backend.prod.Dockerfile
       args:
-        DATABASE_URL: postgresql://narsi:secretpassword@database:5432/cosketch
+        DATABASE_URL: postgresql://cosketch:secretpassword@database:5432/cosketch
     ports:
       - "9000:9000"
     depends_on:
       database:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://narsi:secretpassword@database:5432/cosketch
+      DATABASE_URL: postgresql://cosketch:secretpassword@database:5432/cosketch
       JWT_SECRET: your_jwt_secret_here
       JWT_EXPIRES_IN: 1d
       FRONTEND_URL: http://localhost:3000
@@ -55,14 +55,14 @@ services:
       context: .
       dockerfile: docker/websocket.prod.Dockerfile
       args:
-        DATABASE_URL: postgresql://narsi:secretpassword@database:5432/cosketch
+        DATABASE_URL: postgresql://cosketch:secretpassword@database:5432/cosketch
     ports:
       - "8000:8000"
     depends_on:
       database:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://narsi:secretpassword@database:5432/cosketch
+      DATABASE_URL: postgresql://cosketch:secretpassword@database:5432/cosketch
       JWT_SECRET: your_jwt_secret_here
       CORS_ORIGIN: http://localhost:3000
     networks:
@@ -70,10 +70,10 @@ services:
     restart: unless-stopped
 
   database:
-    image: postgres:15
+    image: postgres:16
     restart: always
     environment:
-      POSTGRES_USER: narsi
+      POSTGRES_USER: cosketch
       POSTGRES_PASSWORD: secretpassword
       POSTGRES_DB: cosketch
     volumes:
@@ -83,7 +83,7 @@ services:
     networks:
       - cosketch-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U narsi -d cosketch"]
+      test: ["CMD-SHELL", "pg_isready -U cosketch -d cosketch"]
       interval: 5s
       timeout: 5s
       retries: 5
