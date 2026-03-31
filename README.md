@@ -1,6 +1,6 @@
 # CoSketch
 
-![CoSketch banner](https://github.com/NarsiBhati-Dev/CoSketch/blob/master/assets/social-banner.webp?raw=true)
+![CoSketch banner](https://github.com/narsibhati-dev/cosketch/blob/master/assets/social-banner.webp?raw=true)
 
 CoSketch is a **real-time collaborative drawing application** built using **Turborepo** and **Bun**. It includes separate apps for the frontend, backend API, and WebSocket server to enable seamless collaboration.
 
@@ -10,7 +10,7 @@ CoSketch is a **real-time collaborative drawing application** built using **Turb
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=NarsiBhati-Dev/cosketch&type=date&legend=top-left)](https://www.star-history.com/#NarsiBhati-Dev/cosketch&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=narsibhati-dev/cosketch&type=date&legend=top-left)](https://www.star-history.com/#narsibhati-dev/cosketch&type=date&legend=top-left)
 
 ## Code of Conduct
 

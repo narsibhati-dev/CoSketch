@@ -27,9 +27,9 @@ const siteMetadata = {
   socialBanner: `${SITE_URL}/images/social-banner.webp`,
 
   // social links
-  github: 'https://github.com/NarsiBhati-Dev/CoSketch.git',
-  linkedIn: 'https://www.linkedin.com/in/narsi-bhati-b43459224/',
-  twitter: 'https://x.com/NarsiBhati31',
+  github: 'https://github.com/narsibhati-dev/cosketch',
+  linkedIn: 'https://www.linkedin.com/in/narsibhati/',
+  twitter: 'https://x.com/narsihq',
 
   // contacts
   email: 'narsibhati2000@gmail.com',
