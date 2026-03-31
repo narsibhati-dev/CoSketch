@@ -42,13 +42,11 @@ const ProtectCanvasRoute = ({ children, roomId }: ProtectCanvasRouteProps) => {
 
   if (isLoading || verifyUserInRoomMutation.isPending) {
     return (
-      <div className='flex h-screen items-center justify-center bg-black'>
-        <div className='flex flex-col items-center space-y-4'>
-          <Spinner />
-          <p className='text-xl font-medium text-gray-200'>
-            {`Just a moment... we're getting things ready for you.`}
-          </p>
-        </div>
+      <div className='flex h-screen flex-col items-center justify-center bg-[#141410]'>
+        <Spinner size={48} light />
+        <p className='mt-5 text-sm text-white/40'>
+          Preparing your canvas&hellip;
+        </p>
       </div>
     );
   }

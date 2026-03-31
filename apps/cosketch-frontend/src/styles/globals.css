@@ -1,28 +1,39 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Custom Colors */
+  /* ── Canvas / App Colors (unchanged) ─────────────────────── */
+  --color-background: #232329;
+  --color-light_background: #2a2a2a;
+  --color-lighter_background: #191919;
+  --color-tool_select: #47456d;
 
+  /* Keep primary purple for canvas UI */
   --color-primary: #6965db;
   --color-primary-chubb: #625ee0;
   --color-primary-darker: #5b57d1;
   --color-primary-darkest: #4a47b1;
   --color-primary-light: #e2e1fc;
-
   --color-secondary: #223082;
 
-  /* --color-background: #1f1f1f; */
-  --color-background: #232329;
-  --color-light_background: #2a2a2a;
-  --color-lighter_background: #191919;
+  /* ── Landing Page Palette ─────────────────────────────────── */
+  /* Warm cream backgrounds */
+  --color-lp-cream: #f9f6ef;
+  --color-lp-cream-subtle: #f2ede2;
+  --color-lp-cream-muted: #e8e2d4;
 
-  --color-tool_select: #47456d;
+  /* Terracotta / burnt-orange accent */
+  --color-lp-accent: #e04e1f;
+  --color-lp-accent-hover: #c94218;
+  --color-lp-accent-soft: #f5e0d8;
 
-  /* Custom BG Colors */
+  /* Ink / text */
+  --color-lp-ink: #1a1916;
+  --color-lp-ink-muted: #7a7770;
+  --color-lp-ink-faint: #b8b4ab;
 
-  --color-background_yellow: #fffceb;
-  --color-background_green: #d1fae5;
-  --color-background_blue: #f0f9ff;
+  /* Dark footer */
+  --color-lp-dark: #141410;
+  --color-lp-dark-surface: #1e1d18;
 }
 
 html {

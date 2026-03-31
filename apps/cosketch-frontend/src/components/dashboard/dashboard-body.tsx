@@ -1,5 +1,4 @@
 import React from 'react';
-import Actions from './action/actions';
 import Rooms from './room/rooms';
 
 export interface RoomResponse {
@@ -12,10 +11,9 @@ export interface RoomResponse {
 
 const DashboardBody = () => {
   return (
-    <section className='mx-auto max-w-7xl px-6'>
-      <Actions />
+    <div className='min-h-screen bg-[#f9f6ef] pt-14'>
       <Rooms />
-    </section>
+    </div>
   );
 };
 

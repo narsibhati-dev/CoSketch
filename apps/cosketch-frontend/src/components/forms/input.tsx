@@ -1,3 +1,5 @@
+'use client';
+
 import { EyeOff, Eye } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -23,14 +25,18 @@ export const Input = ({
   autoComplete,
 }: InputProps) => {
   return (
-    <div className='mb-4'>
-      <label className='mb-1 block text-sm font-medium text-gray-700'>
+    <div>
+      <label className='mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-[#7a7770]'>
         {title}
-        {required && <span className='text-red-500'>*</span>}
+        {required && <span className='ml-0.5 text-[#e04e1f]'>*</span>}
       </label>
       <input
         type={type}
-        className='focus:ring-primary w-full rounded-md border border-gray-300 px-3 py-2 text-black focus:border-transparent focus:ring-2 focus:outline-none'
+        className={`w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-[#1a1916] placeholder:text-[#c8c4bc] transition-all duration-150 focus:outline-none focus:ring-2 ${
+          error
+            ? 'border-[#e04e1f]/40 focus:border-[#e04e1f]/40 focus:ring-[#e04e1f]/15'
+            : 'border-[#e8e2d4] focus:border-[#1a1916]/20 focus:ring-[#1a1916]/6'
+        }`}
         placeholder={placeholder}
         required={required}
         value={value}
@@ -38,7 +44,7 @@ export const Input = ({
         autoComplete={autoComplete}
       />
       {error && (
-        <div className='mt-2 text-right text-sm text-red-500'>{error}</div>
+        <p className='mt-1.5 text-xs text-[#e04e1f]'>{error}</p>
       )}
     </div>
   );
@@ -65,20 +71,20 @@ export const InputPassword = ({
 }: InputPasswordProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
-    <div className='mb-4'>
-      <label className='mb-1 block text-sm font-medium text-gray-700'>
+    <div>
+      <label className='mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-[#7a7770]'>
         {title}
-        {required && <span className='text-red-500'>*</span>}
+        {required && <span className='ml-0.5 text-[#e04e1f]'>*</span>}
       </label>
       <div className='relative'>
         <input
           type={showPassword ? 'text' : 'password'}
-          className='focus:ring-primary w-full rounded-md border border-gray-300 px-3 py-2 pr-10 text-black focus:border-transparent focus:ring-2 focus:outline-none'
+          className={`w-full rounded-lg border bg-white px-3.5 py-2.5 pr-10 text-sm text-[#1a1916] placeholder:text-[#c8c4bc] transition-all duration-150 focus:outline-none focus:ring-2 ${
+            error
+              ? 'border-[#e04e1f]/40 focus:border-[#e04e1f]/40 focus:ring-[#e04e1f]/15'
+              : 'border-[#e8e2d4] focus:border-[#1a1916]/20 focus:ring-[#1a1916]/6'
+          }`}
           placeholder={placeholder}
           required={required}
           value={value}
@@ -87,19 +93,19 @@ export const InputPassword = ({
         />
         <button
           type='button'
-          onClick={togglePasswordVisibility}
-          className='absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 focus:outline-none'
+          onClick={() => setShowPassword(prev => !prev)}
+          className='absolute inset-y-0 right-0 flex items-center px-3 text-[#c8c4bc] transition-colors hover:text-[#7a7770] focus:outline-none'
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
           {showPassword ? (
-            <EyeOff className='h-5 w-5' />
+            <EyeOff className='h-4 w-4' />
           ) : (
-            <Eye className='h-5 w-5' />
+            <Eye className='h-4 w-4' />
           )}
         </button>
       </div>
       {error && (
-        <div className='mt-2 text-right text-sm text-red-500'>{error}</div>
+        <p className='mt-1.5 text-xs text-[#e04e1f]'>{error}</p>
       )}
     </div>
   );

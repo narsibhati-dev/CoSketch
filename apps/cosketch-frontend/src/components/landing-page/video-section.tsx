@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
+import { fraunces } from '@/data/fonts';
 
 const VideoSection = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -42,12 +43,28 @@ const VideoSection = () => {
   }, [handleVideoObserver]);
 
   return (
-    <section id='demo' className='mx-4 my-10 scroll-mt-20 rounded-xl shadow-lg'>
+    <section
+      id='demo'
+      className='w-full scroll-mt-20 bg-[#f2ede2] px-6 pb-16 pt-20'
+    >
+      {/* Section header */}
+      <div className='mx-auto mb-12 max-w-2xl text-center'>
+        <span className='mb-3 inline-block text-xs font-semibold uppercase tracking-widest text-[#e04e1f]'>
+          See it in action
+        </span>
+        <h2
+          className={`${fraunces.className} text-3xl font-semibold text-[#1a1916] md:text-4xl`}
+        >
+          Watch how it works
+        </h2>
+      </div>
+
+      {/* Video */}
       <div className='container mx-auto max-w-5xl'>
-        <div className='relative overflow-hidden rounded-xl'>
+        <div className='relative overflow-hidden rounded-2xl shadow-xl shadow-[#1a1916]/10 ring-1 ring-[#1a1916]/8'>
           <video
             ref={videoRef}
-            className='h-full w-full rounded-xl object-cover'
+            className='h-full w-full rounded-2xl object-cover'
             muted
             loop
             playsInline

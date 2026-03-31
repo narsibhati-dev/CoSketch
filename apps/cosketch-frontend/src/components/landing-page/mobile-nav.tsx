@@ -22,15 +22,14 @@ const MobileNav = () => {
     setIsOpen(prev => !prev);
   };
 
-  // Handle Scroll Lock for Body
   useEffect(() => {
     if (navRef.current) {
       if (isOpen) {
         disableBodyScroll(navRef.current, { reserveScrollBarGap: true });
-        document.body.style.overflow = 'hidden'; // Prevent body scroll
+        document.body.style.overflow = 'hidden';
       } else {
         enableBodyScroll(navRef.current);
-        document.body.style.overflow = 'auto'; // Restore scrolling
+        document.body.style.overflow = 'auto';
       }
     }
     return () => {
@@ -41,20 +40,18 @@ const MobileNav = () => {
 
   return (
     <>
-      {/* Sidebar Toggle Button */}
       <button
         onClick={onToggleNav}
-        className='relative z-50 flex items-center justify-center md:hidden'
+        className='relative z-50 flex items-center justify-center text-[#1a1916] md:hidden'
         aria-label='Toggle Menu'
       >
         <SidebarOpen />
       </button>
 
-      {/* Sidebar & Overlay */}
       {isOpen && (
         <div
-          className='bg-opacity-50 fixed inset-0 z-50 transition-opacity duration-300'
-          onClick={onToggleNav} // Close menu when clicking outside
+          className='fixed inset-0 z-50 bg-[#1a1916]/30 backdrop-blur-sm transition-opacity duration-300'
+          onClick={onToggleNav}
         />
       )}
 
@@ -62,28 +59,31 @@ const MobileNav = () => {
         ref={navRef}
         className={clsx(
           isOpen ? 'translate-x-0' : 'translate-x-full',
-          'text-secondary fixed inset-y-0 right-0 z-50 flex h-screen w-screen flex-col bg-white px-2 transition-transform duration-500 md:w-72',
+          'fixed inset-y-0 right-0 z-50 flex h-screen w-screen flex-col bg-[#f9f6ef] px-2 transition-transform duration-500 md:w-80',
         )}
       >
         <div
-          className='flex items-center justify-between border-b bg-white px-4 py-6'
-          onClick={e => e.stopPropagation()} // Prevent closing when clicking inside
+          className='flex items-center justify-between border-b border-[#e8e2d4] bg-[#f9f6ef] px-4 py-6'
+          onClick={e => e.stopPropagation()}
         >
           <Logo />
-          <button onClick={onToggleNav} aria-label='Close Sidebar'>
+          <button
+            onClick={onToggleNav}
+            aria-label='Close Sidebar'
+            className='text-[#1a1916]'
+          >
             <SidebarClose />
           </button>
         </div>
 
-        {/* Navigation Items */}
-        <nav className='mt-6 flex flex-col gap-4 bg-white px-4 text-lg'>
-          <ul className='font-medium text-gray-700'>
+        <nav className='mt-6 flex flex-col gap-4 bg-[#f9f6ef] px-6'>
+          <ul className='text-[#1a1916]'>
             {NavLink.map((link, index) => (
               <li key={index} className='mt-6'>
                 <a
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className='hover:text-primary text-2xl transition'
+                  className='text-2xl font-medium text-[#7a7770] transition-colors hover:text-[#1a1916]'
                 >
                   {link.title}
                 </a>
@@ -95,7 +95,7 @@ const MobileNav = () => {
                 href={siteMetadata.github}
                 target='_blank'
                 onClick={() => setIsOpen(false)}
-                className='hover:text-primary text-2xl transition'
+                className='text-2xl font-medium text-[#7a7770] transition-colors hover:text-[#1a1916]'
               >
                 Github
               </a>
@@ -105,7 +105,7 @@ const MobileNav = () => {
               <Link
                 href='/signin'
                 scroll={false}
-                className='hover:bg-primary bg-primary-darker rounded-lg border-2 border-gray-200 px-6 py-2 font-bold tracking-wider text-white transition'
+                className='inline-block rounded-lg bg-[#1a1916] px-6 py-3 font-semibold text-[#f9f6ef] transition-colors hover:bg-[#2d2c26]'
               >
                 Sign In
               </Link>

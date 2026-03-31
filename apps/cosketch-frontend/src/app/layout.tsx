@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import '@/styles/globals.css';
 
-import { space_grotesk } from '@/data/fonts';
+import { dmSans } from '@/data/fonts';
 import ReactQueryProvider from '@/lib/react-query';
 import { Toaster } from 'react-hot-toast';
 import siteMetadata from '@/lib/siteMetadata';
@@ -68,10 +68,37 @@ export default function RootLayout({
       <meta name='apple-mobile-web-app-title' content='CoSketch' />
       <link rel='manifest' href='/favicons/site.webmanifest' />
 
-      <body className={`${space_grotesk.className} scroll-smooth antialiased`}>
+      <body className={`${dmSans.className} scroll-smooth antialiased`}>
         <ReactQueryProvider>
           {children}
-          <Toaster position='top-right' reverseOrder={false} />
+          <Toaster
+            position='top-right'
+            reverseOrder={false}
+            toastOptions={{
+              style: {
+                background: '#f9f6ef',
+                color: '#1a1916',
+                borderRadius: '12px',
+                border: '1px solid #e8e2d4',
+                boxShadow:
+                  '0 18px 45px rgba(0,0,0,0.18), 0 0 0 1px rgba(20,20,16,0.02)',
+                padding: '10px 14px',
+                fontSize: '14px',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#e04e1f',
+                  secondary: '#f5e0d8',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#1a1916',
+                  secondary: '#f9f6ef',
+                },
+              },
+            }}
+          />
         </ReactQueryProvider>
       </body>
     </html>

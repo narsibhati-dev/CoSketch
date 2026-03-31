@@ -2,8 +2,8 @@ export const Twitter = () => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
-      width='30'
-      height='30'
+      width='20'
+      height='20'
       fill='currentColor'
       className='bi bi-twitter-x'
       viewBox='0 0 16 16'
@@ -17,8 +17,8 @@ export const Github = () => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
-      width='30'
-      height='30'
+      width='20'
+      height='20'
       fill='currentColor'
       className='bi bi-github'
       viewBox='0 0 16 16'
@@ -32,8 +32,8 @@ export const LinkedIn = () => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
-      width='30'
-      height='30'
+      width='20'
+      height='20'
       fill='currentColor'
       className='bi bi-linkedin'
       viewBox='0 0 16 16'

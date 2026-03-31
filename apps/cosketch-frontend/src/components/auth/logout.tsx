@@ -2,23 +2,21 @@
 
 import React, { useState } from 'react';
 import { LogoutDialogBox } from '@/components/dialogbox/logout-dialogbox';
+import { LogOut } from 'lucide-react';
 
 const Logout = () => {
-  const [DailogboxOpen, setDailogBoxOpen] = useState<boolean>(false);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
   return (
     <>
-      <LogoutDialogBox isOpen={DailogboxOpen} onClose={setDailogBoxOpen} />
-      <div className='flex items-center justify-between gap-4 text-base font-bold'>
-        <button
-          className='bg-primary-darker hover:bg-primary cursor-pointer rounded-xl border-2 border-gray-200 px-6 py-1.5 text-white'
-          onClick={() => {
-            setDailogBoxOpen(true);
-          }}
-        >
-          Logout
-        </button>
-      </div>
+      <LogoutDialogBox isOpen={dialogOpen} onClose={setDialogOpen} />
+      <button
+        className='flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#e8e2d4] px-3.5 py-2 text-sm font-medium text-[#7a7770] transition-colors hover:border-[#1a1916]/25 hover:text-[#1a1916]'
+        onClick={() => setDialogOpen(true)}
+      >
+        <LogOut size={14} />
+        Sign out
+      </button>
     </>
   );
 };

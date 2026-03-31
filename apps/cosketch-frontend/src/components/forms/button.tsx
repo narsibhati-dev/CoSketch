@@ -2,7 +2,6 @@
 
 interface ButtonProps {
   text: React.ReactNode;
-  // onClick: (e: React.FormEvent) => void;
   type?: 'submit' | 'button';
   disabled: boolean;
 }
@@ -10,9 +9,8 @@ interface ButtonProps {
 export const Button = (props: ButtonProps) => {
   return (
     <button
-      className='w-full rounded-lg bg-black px-4 py-2 text-white hover:bg-[#333333]'
-      // onClick={props.onClick}
-      type={props.type ? props.type : 'button'}
+      className='w-full rounded-xl bg-[#1a1916] px-4 py-3 text-sm font-semibold text-[#f9f6ef] shadow-sm transition-all duration-150 hover:bg-[#2d2c26] disabled:cursor-not-allowed disabled:opacity-60'
+      type={props.type ?? 'button'}
       disabled={props.disabled}
     >
       {props.text}

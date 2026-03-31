@@ -7,12 +7,12 @@ import Link from 'next/link';
 const Navbar = () => {
   return (
     <nav>
-      <ul className='hidden items-center gap-6 font-medium text-gray-700 md:flex'>
+      <ul className='hidden items-center gap-8 md:flex'>
         {NavLink.map((link, index) => (
           <li key={index}>
             <a
               href={link.href}
-              className='hover:text-primary-chubb text-base transition'
+              className='text-sm font-medium text-[#7a7770] transition-colors hover:text-[#1a1916]'
             >
               {link.title}
             </a>
@@ -23,7 +23,7 @@ const Navbar = () => {
           <a
             href={siteMetadata.github}
             target='_blank'
-            className='hover:text-primary-chubb text-base transition'
+            className='text-sm font-medium text-[#7a7770] transition-colors hover:text-[#1a1916]'
           >
             Github
           </a>
@@ -33,7 +33,7 @@ const Navbar = () => {
           <Link
             href='/signin'
             scroll={false}
-            className='hover:bg-primary bg-primary-darker rounded-lg border-2 border-gray-200 px-6 py-2 font-bold tracking-wider text-white transition'
+            className='rounded-lg bg-[#1a1916] px-5 py-2 text-sm font-semibold text-[#f9f6ef] transition-colors hover:bg-[#2d2c26]'
           >
             Sign In
           </Link>

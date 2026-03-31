@@ -1,33 +1,37 @@
-import { knewave } from '@/data/fonts';
-import siteMetadata from '@/lib/siteMetadata';
-import Image from 'next/image';
-import React from 'react';
-import Logout from '@/components/auth/logout';
+'use client';
+
+import React, { useState } from 'react';
+import Logo from '@/components/landing-page/logo';
+import { LogoutDialogBox } from '@/components/dialogbox/logout-dialogbox';
+import { LogOut } from 'lucide-react';
 
 const DashboardHeader = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
-    <header className='fixed inset-x-0 top-0 z-50 bg-white drop-shadow-md'>
-      <section className='mx-auto flex max-w-7xl items-center justify-between px-4 py-4'>
-        <div className='ml-1 flex items-center justify-center gap-3'>
-          <Image
-            src={'/images/logo.png'}
-            alt={'CoSketch logo'}
-            width={40}
-            height={40}
-            priority
-            className='w-6 md:w-10'
-          />
+    <>
+      <LogoutDialogBox isOpen={dialogOpen} onClose={setDialogOpen} />
 
-          <h1
-            className={`${knewave.className} text-secondary text-2xl font-extrabold md:text-3xl`}
+      <header className='fixed inset-x-0 top-0 z-50 h-14 border-b border-[#e8e2d4]/80 bg-[#f9f6ef]/90 backdrop-blur-md'>
+        <div className='mx-auto flex h-full max-w-7xl items-center justify-between px-6'>
+
+          <Logo />
+
+          {/* right side */}
+          <button
+            onClick={() => setDialogOpen(true)}
+            className='group flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium text-[#7a7770] transition-colors hover:bg-[#1a1916]/5 hover:text-[#1a1916]'
           >
-            {siteMetadata.header}
-          </h1>
-        </div>
+            <LogOut
+              size={15}
+              className='transition-transform duration-150 group-hover:-translate-x-0.5'
+            />
+            <span>Sign out</span>
+          </button>
 
-        <Logout />
-      </section>
-    </header>
+        </div>
+      </header>
+    </>
   );
 };
 
