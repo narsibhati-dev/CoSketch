@@ -39,4 +39,9 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 65px;
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
 }

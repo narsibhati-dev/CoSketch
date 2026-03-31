@@ -63,12 +63,12 @@ const Rooms = () => {
           }}
         />
         {/* decorative marks */}
-        <svg className='absolute right-12 top-1/2 -translate-y-1/2 opacity-[0.12]' width='180' height='120' viewBox='0 0 180 120' fill='none'>
+        <svg className='absolute right-8 top-1/2 hidden -translate-y-1/2 opacity-[0.12] sm:block' width='180' height='120' viewBox='0 0 180 120' fill='none'>
           <path d='M10 60 C 40 20, 70 100, 100 60 S 150 20, 170 60' stroke='#e04e1f' strokeWidth='2' strokeLinecap='round' fill='none' />
           <circle cx='150' cy='30' r='18' stroke='#e04e1f' strokeWidth='1.5' strokeDasharray='5 4' fill='none' />
         </svg>
 
-        <div className='relative z-10 mx-auto flex max-w-7xl flex-col gap-5 px-6 py-8 sm:flex-row sm:items-center sm:justify-between'>
+        <div className='relative z-10 mx-auto flex max-w-7xl flex-col gap-5 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-8'>
           {/* Left: greeting */}
           <div>
             <p className='mb-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7a7770]'>
@@ -80,23 +80,23 @@ const Rooms = () => {
             </h1>
             <p className='mt-1 text-sm text-[#5a5750]'>
               {rooms.length === 0
-                ? 'No rooms yet — create one to start.'
+                ? 'No rooms yet, create one to start.'
                 : `${rooms.length} room${rooms.length !== 1 ? 's' : ''} ready to collaborate.`}
             </p>
           </div>
 
           {/* Right: actions */}
-          <div className='flex shrink-0 items-center gap-2.5'>
+          <div className='flex w-full shrink-0 flex-col gap-2.5 sm:w-auto sm:flex-row sm:items-center'>
             <button
               onClick={() => setJoinRoom(true)}
-              className='flex items-center gap-1.5 rounded-xl border border-[#f9f6ef]/15 px-4 py-2 text-sm font-medium text-[#a8a49b] transition-colors hover:border-[#f9f6ef]/30 hover:text-[#f9f6ef]'
+              className='flex w-full items-center justify-center gap-1.5 rounded-xl border border-[#f9f6ef]/15 px-4 py-2 text-sm font-medium text-[#a8a49b] transition-colors hover:border-[#f9f6ef]/30 hover:text-[#f9f6ef] sm:w-auto'
             >
               <Users className='h-3.5 w-3.5' />
               Join Room
             </button>
             <button
               onClick={() => setCreateRoom(true)}
-              className='flex items-center gap-1.5 rounded-xl bg-[#e04e1f] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#c94318]'
+              className='flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#e04e1f] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#c94318] sm:w-auto'
             >
               <Plus className='h-3.5 w-3.5' />
               New Room
@@ -106,9 +106,9 @@ const Rooms = () => {
       </div>
 
       {/* ── Rooms Section ── */}
-      <div className='mx-auto max-w-7xl px-6 py-8'>
+      <div className='mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8'>
         {/* Section header */}
-        <div className='mb-5 flex items-center justify-between'>
+        <div className='mb-5 flex flex-wrap items-center justify-between gap-2'>
           <h2 className={`${fraunces.className} text-lg font-semibold text-[#1a1916]`}>
             {rooms.length > 0
               ? `${rooms.length} Room${rooms.length !== 1 ? 's' : ''}`
@@ -144,7 +144,7 @@ const Rooms = () => {
           </div>
         ) : (
           /* ── Empty State ── */
-          <div className='flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#e8e2d4] bg-white px-8 py-20 text-center'>
+          <div className='flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#e8e2d4] bg-white px-6 py-14 text-center sm:px-8 sm:py-20'>
             <div className='relative mb-5'>
               <svg width='64' height='64' viewBox='0 0 64 64' fill='none' className='mx-auto'>
                 <rect x='6' y='6' width='52' height='52' rx='10' fill='#f9f6ef' stroke='#e8e2d4' strokeWidth='1.5' />

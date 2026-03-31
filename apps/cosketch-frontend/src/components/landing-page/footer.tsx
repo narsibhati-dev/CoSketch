@@ -14,7 +14,7 @@ const Footer = () => {
     <footer className='bg-[#141410] text-white/50'>
 
       {/* Main footer content */}
-      <section className='mx-auto flex max-w-7xl flex-col gap-12 px-6 py-16 md:flex-row md:justify-between md:gap-0'>
+      <section className='mx-auto flex max-w-7xl flex-col gap-12 px-4 py-12 sm:px-6 sm:py-16 md:flex-row md:justify-between md:gap-0'>
 
         {/* Brand column */}
         <section className='flex w-full flex-col items-start md:w-64'>
@@ -80,8 +80,8 @@ const Footer = () => {
       </section>
 
       {/* Bottom bar */}
-      <section className='border-t border-white/[0.06] px-6 py-5'>
-        <div className='mx-auto flex max-w-7xl items-center justify-between'>
+      <section className='border-t border-white/[0.06] px-4 py-5 sm:px-6'>
+        <div className='mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3'>
           <p className='text-xs text-white/20'>
             &copy; {new Date().getFullYear()} {siteMetadata.header}. All rights reserved.
           </p>

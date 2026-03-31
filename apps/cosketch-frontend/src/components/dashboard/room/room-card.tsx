@@ -101,7 +101,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ username, room, index }) => {
 
           {/* large room initial */}
           <span
-            className={`${fraunces.className} absolute inset-0 flex items-center justify-center text-7xl font-semibold italic select-none`}
+            className={`${fraunces.className} absolute inset-0 flex select-none items-center justify-center text-6xl font-semibold italic sm:text-7xl`}
             style={{ color: palette.accent, opacity: 0.15 }}
           >
             {initial}
@@ -113,7 +113,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ username, room, index }) => {
           >
             <button
               onClick={handleJoinRoom}
-              className='flex items-center gap-2 rounded-xl bg-white px-5 py-2 text-sm font-semibold text-[#1a1916] shadow-lg transition-transform duration-150 hover:scale-105'
+              className='flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-[#1a1916] shadow-lg transition-transform duration-150 hover:scale-105 sm:px-5'
             >
               <LogIn className='h-4 w-4' />
               Open Canvas
@@ -142,8 +142,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ username, room, index }) => {
           </button>
 
           {/* Footer: date + participants + delete */}
-          <div className='mt-auto flex items-center justify-between border-t border-[#f2ede2] pt-2.5 text-xs text-[#b8b4ab]'>
-            <div className='flex items-center gap-3'>
+          <div className='mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-[#f2ede2] pt-2.5 text-xs text-[#b8b4ab]'>
+            <div className='flex flex-wrap items-center gap-2 sm:gap-3'>
               <span className='flex items-center gap-1'>
                 <Calendar className='h-3 w-3' />
                 {formattedDate}

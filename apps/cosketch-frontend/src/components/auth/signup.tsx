@@ -129,7 +129,7 @@ const Signup = () => {
               <em className='text-[#e04e1f]/75'>deserve a canvas.</em>
             </h2>
             <p className='mt-5 max-w-[280px] text-sm leading-relaxed text-white/28'>
-              Join teams who sketch, plan, and create together on CoSketch — the collaborative whiteboard built for deep work.
+              Join teams who sketch, plan, and create together on CoSketch, the collaborative whiteboard built for deep work.
             </p>
           </div>
 

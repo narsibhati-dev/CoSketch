@@ -5,7 +5,7 @@ import FeaturesSection from './FeaturesSection';
 
 const Landing = () => {
   return (
-    <main className='flex flex-col items-center justify-center'>
+    <main className='w-full overflow-x-clip'>
       <HeroSection />
       <VideoSection />
       <FeaturesSection />

@@ -53,11 +53,11 @@ const CreateRoomDialogBox = ({ onClose }: CreateRoomDialogBoxProps) => {
 
   return (
     <section
-      className='fixed inset-0 z-50 flex items-center justify-center bg-[#1a1916]/40 backdrop-blur-sm'
+      className='fixed inset-0 z-50 flex items-center justify-center bg-[#1a1916]/40 p-4 backdrop-blur-sm'
       onClick={() => onClose(false)}
     >
       <div
-        className='w-[90%] max-w-sm overflow-hidden rounded-2xl bg-[#f9f6ef] shadow-2xl shadow-[#1a1916]/20'
+        className='max-h-[90vh] w-full max-w-sm overflow-hidden rounded-2xl bg-[#f9f6ef] shadow-2xl shadow-[#1a1916]/20'
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -81,7 +81,7 @@ const CreateRoomDialogBox = ({ onClose }: CreateRoomDialogBoxProps) => {
         </div>
 
         {/* Body */}
-        <div className='px-6 py-5'>
+        <div className='max-h-[52vh] overflow-y-auto px-6 py-5'>
           <label className='mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#b8b4ab]'>
             Room Name
           </label>

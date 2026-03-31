@@ -42,10 +42,10 @@ const MobileNav = () => {
     <>
       <button
         onClick={onToggleNav}
-        className='relative z-50 flex items-center justify-center text-[#1a1916] md:hidden'
+        className='relative z-[60] flex items-center justify-center text-[#1a1916] md:hidden'
         aria-label='Toggle Menu'
       >
-        <SidebarOpen />
+        {isOpen ? <SidebarClose /> : <SidebarOpen />}
       </button>
 
       {isOpen && (
@@ -59,24 +59,17 @@ const MobileNav = () => {
         ref={navRef}
         className={clsx(
           isOpen ? 'translate-x-0' : 'translate-x-full',
-          'fixed inset-y-0 right-0 z-50 flex h-screen w-screen flex-col bg-[#f9f6ef] px-2 transition-transform duration-500 md:w-80',
+          'fixed inset-y-0 right-0 z-50 flex h-screen w-full max-w-sm flex-col bg-[#f9f6ef] transition-transform duration-500',
         )}
       >
         <div
-          className='flex items-center justify-between border-b border-[#e8e2d4] bg-[#f9f6ef] px-4 py-6'
+          className='flex items-center justify-between border-b border-[#e8e2d4] bg-[#f9f6ef] px-5 py-5'
           onClick={e => e.stopPropagation()}
         >
           <Logo />
-          <button
-            onClick={onToggleNav}
-            aria-label='Close Sidebar'
-            className='text-[#1a1916]'
-          >
-            <SidebarClose />
-          </button>
         </div>
 
-        <nav className='mt-6 flex flex-col gap-4 bg-[#f9f6ef] px-6'>
+        <nav className='mt-4 flex flex-1 flex-col gap-4 overflow-y-auto bg-[#f9f6ef] px-6 pb-8'>
           <ul className='text-[#1a1916]'>
             {NavLink.map((link, index) => (
               <li key={index} className='mt-6'>

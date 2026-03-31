@@ -130,7 +130,7 @@ const Signin = () => {
             </h2>
             <p className='mt-5 max-w-[280px] text-sm leading-relaxed text-white/28'>
               Collaborate on an infinite canvas. Sketch ideas, plan
-              projects, and create without limits — in real-time.
+              projects, and create without limits, in real-time.
             </p>
           </div>
 

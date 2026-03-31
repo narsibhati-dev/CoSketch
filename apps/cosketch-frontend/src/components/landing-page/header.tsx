@@ -21,7 +21,7 @@ const Header = () => {
           : 'bg-transparent'
       }`}
     >
-      <section className='mx-auto flex max-w-7xl items-center justify-between px-6 py-4'>
+      <section className='mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4'>
         <Logo />
         <Navbar />
       </section>

@@ -20,7 +20,7 @@ const NotFound = () => {
           | Blank Canvas!
         </h1>
         <p className='mt-4 text-lg text-gray-600'>
-          Nothing’s drawn here yet—time to create something amazing.
+          Nothing’s drawn here yet, time to create something amazing.
         </p>
         <div className='mt-8 flex gap-4'>
           <Link href='/'>
