@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 const HeroSection = () => {
   return (
-    <section className='relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#f9f6ef] px-4 pb-14 pt-24 text-center sm:px-6 sm:pb-16 sm:pt-28'>
+    <section className='relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden bg-[#f9f6ef] px-4 pb-14 pt-24 text-center sm:px-6 sm:pb-16 sm:pt-28'>
 
       {/* ── Decorative sketched background elements ──────────── */}
 

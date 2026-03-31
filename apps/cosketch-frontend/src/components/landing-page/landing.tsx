@@ -5,7 +5,7 @@ import FeaturesSection from './FeaturesSection';
 
 const Landing = () => {
   return (
-    <main className='w-full overflow-x-clip'>
+    <main className='w-full overflow-x-hidden'>
       <HeroSection />
       <VideoSection />
       <FeaturesSection />

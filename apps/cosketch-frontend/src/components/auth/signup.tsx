@@ -60,7 +60,7 @@ const Signup = () => {
   };
 
   return (
-    <main className='flex h-screen w-screen overflow-hidden'>
+    <main className='flex min-h-screen w-full overflow-x-hidden overflow-y-auto'>
 
       {/* ── Left Panel: Dark brand canvas ─────────────────────── */}
       <aside className='relative hidden flex-col bg-[#141410] lg:flex lg:w-[52%]'>

@@ -59,7 +59,7 @@ const MobileNav = () => {
         ref={navRef}
         className={clsx(
           isOpen ? 'translate-x-0' : 'translate-x-full',
-          'fixed inset-y-0 right-0 z-50 flex h-screen w-full max-w-sm flex-col bg-[#f9f6ef] transition-transform duration-500',
+          'fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col overflow-y-auto bg-[#f9f6ef] transition-transform duration-500',
         )}
       >
         <div
