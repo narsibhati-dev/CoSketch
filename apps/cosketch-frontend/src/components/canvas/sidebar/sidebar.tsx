@@ -51,8 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTool }) => {
     <section
       onMouseUp={event => event.stopPropagation()}
       className={clsx(
-        'bg-background absolute left-4 flex h-auto flex-col space-y-4 rounded-lg px-3 py-4 text-gray-400 shadow-md',
-        'top-32',
+        'scrollbar-hide canvas-panel absolute left-3 top-[68px] z-20 flex h-auto max-h-[calc(100svh-148px)] flex-col space-y-3.5 overflow-y-auto overflow-x-hidden rounded-xl px-3.5 py-4 md:top-20 lg:left-5',
         !isShapeSelected &&
           (selectedTool === 'Eraser' || selectedTool === 'Selection')
           ? 'hidden'

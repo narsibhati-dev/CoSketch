@@ -17,31 +17,29 @@ const CanvasZoom = () => {
   const zoomPercent = Math.round(zoom * 100);
 
   return (
-    <div className='bg-background flex items-center gap-4 rounded-lg shadow-md'>
+    <div className='canvas-panel flex items-center gap-1 rounded-xl px-1 py-1'>
       <button
         onClick={zoomOut}
         disabled={zoom <= MIN_ZOOM}
-        className={`cursor-pointer rounded-l-lg p-2 ${
-          zoom <= MIN_ZOOM
-            ? 'cursor-not-allowed text-gray-400'
-            : 'hover:bg-light_background text-white'
+        className={`canvas-btn flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg ${
+          zoom <= MIN_ZOOM ? 'cursor-not-allowed opacity-30' : ''
         }`}
       >
-        <Minus className='h-5 w-5' />
+        <Minus className='h-3.5 w-3.5' />
       </button>
 
-      <span className='text-lg font-semibold text-white'>{zoomPercent}%</span>
+      <span className='min-w-[44px] text-center text-xs font-semibold tracking-wide text-[rgba(210,200,185,0.75)]'>
+        {zoomPercent}%
+      </span>
 
       <button
         onClick={zoomIn}
         disabled={zoom >= MAX_ZOOM}
-        className={`cursor-pointer rounded-r-lg p-2 ${
-          zoom >= MAX_ZOOM
-            ? 'cursor-not-allowed text-gray-400'
-            : 'hover:bg-light_background text-white'
+        className={`canvas-btn flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg ${
+          zoom >= MAX_ZOOM ? 'cursor-not-allowed opacity-30' : ''
         }`}
       >
-        <Plus className='h-5 w-5' />
+        <Plus className='h-3.5 w-3.5' />
       </button>
     </div>
   );

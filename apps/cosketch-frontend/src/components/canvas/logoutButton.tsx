@@ -34,10 +34,10 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({ roomId, sendMessage }) => {
     <>
       <div className='group relative'>
         <button
-          className='bg-background hover:bg-light_background flex cursor-pointer items-center gap-2 rounded-lg px-2 py-3 text-white transition'
+          className='canvas-panel canvas-btn flex cursor-pointer items-center gap-2 rounded-xl px-2.5 py-2'
           onClick={handleLeaveClick}
         >
-          <LogOut size={20} className='h-5 w-8 cursor-pointer' />
+          <LogOut size={16} className='h-4 w-4' />
           <Tooltip tooltip='leave room' />
         </button>
       </div>

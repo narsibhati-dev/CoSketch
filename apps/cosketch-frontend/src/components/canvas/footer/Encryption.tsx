@@ -7,7 +7,7 @@ const EncryptionBadge = () => {
 
   return (
     <div
-      className='text-primary relative hidden items-center gap-2 text-sm font-medium sm:block'
+      className='relative hidden items-center gap-2 text-sm font-medium text-[rgba(175,162,142,0.6)] sm:flex'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -27,7 +27,7 @@ const EncryptionBadge = () => {
 
       {/* Tooltip */}
       {isHovered && (
-        <div className='bg-background absolute -top-20 left-1/2 w-max -translate-x-[80%] rounded-md px-6 py-6 text-base whitespace-nowrap text-white shadow-lg'>
+        <div className='canvas-panel absolute -top-20 left-1/2 w-max -translate-x-[80%] rounded-xl px-5 py-4 text-sm whitespace-nowrap text-[rgba(215,205,188,0.9)]'>
           Your drawings are <strong>fully private & secured</strong>.
         </div>
       )}

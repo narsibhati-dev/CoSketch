@@ -25,26 +25,24 @@ const IconSelector = <T extends string>({
         <button
           key={key}
           className={clsx(
-            'flex h-8 w-8 cursor-pointer items-center justify-center rounded transition-colors',
-            selectedIcon === key
-              ? 'bg-tool_select'
-              : 'bg-gray-900 hover:bg-gray-800',
+            'canvas-btn flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg',
+            selectedIcon === key ? 'canvas-btn-selected' : '',
           )}
           onClick={() => {
             if (selectedIcon !== key) setSelectedIcon(key);
           }}
-          aria-label={`${title} - ${key}`} // Accessibility enhancement
+          aria-label={`${title} - ${key}`}
         >
-          <Icon className='h-6 w-6' />
+          <Icon className='h-5 w-5' />
         </button>
       )),
     [icons, selectedIcon, setSelectedIcon, title],
   );
 
   return (
-    <div className='mb-2'>
-      <p className='mb-1 text-sm font-medium'>{title}</p>
-      <div className='flex gap-2'>{iconButtons}</div>
+    <div className='mb-1'>
+      <p className='canvas-label'>{title}</p>
+      <div className='flex gap-1.5'>{iconButtons}</div>
     </div>
   );
 };

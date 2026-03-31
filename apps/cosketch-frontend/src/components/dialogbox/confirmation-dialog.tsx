@@ -23,25 +23,29 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 
   return (
     <div
-      className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm'
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm'
       onClick={onCancel}
     >
       <div
-        className='bg-background w-[90%] max-w-md rounded-xl p-6 shadow-lg'
+        className='canvas-panel w-[90%] max-w-md rounded-2xl p-7'
         onClick={e => e.stopPropagation()}
       >
-        <h2 className='mb-2 text-xl font-semibold text-white'>{title}</h2>
-        <p className='mb-10 text-base text-gray-300'>{message}</p>
+        <h2 className='mb-2 text-lg font-semibold tracking-tight text-[rgba(232,222,208,0.95)]'>
+          {title}
+        </h2>
+        <p className='mb-8 text-sm leading-relaxed text-[rgba(160,155,210,0.7)]'>
+          {message}
+        </p>
 
         <div className='flex justify-end gap-2'>
           <button
-            className='cursor-pointer rounded-md border px-4 py-2 font-bold text-gray-200 hover:bg-gray-700'
+            className='canvas-btn cursor-pointer rounded-lg border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm font-medium'
             onClick={onCancel}
           >
             {cancelText}
           </button>
           <button
-            className='cursor-pointer rounded-md bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500'
+            className='cursor-pointer rounded-lg bg-red-500/20 px-4 py-2 text-sm font-semibold text-red-300 ring-1 ring-red-500/40 transition hover:bg-red-500/30 hover:ring-red-400/60'
             onClick={onConfirm}
           >
             {confirmText}

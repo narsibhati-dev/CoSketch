@@ -20,17 +20,16 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({
     <div className='group relative flex'>
       <button
         onClick={onClick}
-        className={`relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-md transition ${
-          isSelected ? 'bg-tool_select' : 'hover:bg-light_background'
+        className={`canvas-btn relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg ${
+          isSelected ? 'canvas-btn-selected' : ''
         }`}
       >
-        <Icon size={16} className='text-white' />
-        <span className='absolute right-1 bottom-0 text-[9px] text-gray-400 opacity-80'>
+        <Icon size={15} />
+        <span className='absolute right-1 bottom-0.5 text-[8px] opacity-40 select-none'>
           {id}
         </span>
       </button>
 
-      {/* Tooltip */}
       <Tooltip tooltip={tooltip} />
     </div>
   );

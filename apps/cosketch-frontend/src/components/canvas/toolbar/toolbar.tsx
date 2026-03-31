@@ -102,23 +102,25 @@ const Toolbar: React.FC<ToolbarProps> = ({ sendMessage, roomId }) => {
   }, [isLocked, selectedTool]);
 
   return (
-    <nav className='bg-background flex items-center justify-between gap-2 rounded-lg px-4 py-1 text-white shadow-md'>
+    <nav className='canvas-panel flex items-center gap-1 rounded-xl px-2 py-1.5'>
       {/* Lock Toggle Button */}
       <div className='group relative'>
         <button
           onClick={toggleLock}
-          className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded ${
-            isLocked ? 'bg-tool_select' : 'hover:bg-light_background'
+          className={`canvas-btn flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg ${
+            isLocked ? 'canvas-btn-selected' : ''
           }`}
           aria-label='Toggle lock'
         >
-          {isLocked ? <LockKeyhole size={18} /> : <LockKeyholeOpen size={18} />}
+          {isLocked ? <LockKeyhole size={15} /> : <LockKeyholeOpen size={15} />}
           <Tooltip tooltip={'Keep selected tool active after drawing'} />
         </button>
       </div>
 
+      <div className='canvas-divider' />
+
       {/* Toolbar Buttons */}
-      <div className='flex gap-2 border-x border-gray-700 px-4'>
+      <div className='flex gap-0.5 px-1'>
         {tools.map(tool => (
           <ToolbarButton
             key={tool.id}
@@ -131,14 +133,16 @@ const Toolbar: React.FC<ToolbarProps> = ({ sendMessage, roomId }) => {
         ))}
       </div>
 
+      <div className='canvas-divider' />
+
       {/* Clear Button */}
       <div className='group relative'>
         <button
-          className='hover:bg-light_background flex h-9 w-9 cursor-pointer items-center justify-center rounded p-2'
+          className='canvas-btn flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg'
           aria-label='Clear canvas'
           onClick={handleClick}
         >
-          <Trash size={18} className='text-red-500' />
+          <Trash size={15} className='text-red-400/80' />
         </button>
         <Tooltip tooltip={'Clear Canvas'} />
       </div>

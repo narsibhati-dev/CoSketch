@@ -84,16 +84,18 @@ const ColorPalette: React.FC<ColorPaletteProps> = ({
   }, []);
 
   return (
-    <section className='relative mb-2' ref={ref}>
+    <section className='relative mb-1' ref={ref}>
       {/* Quick Color Selection */}
-      <p className='mb-1 text-sm font-medium'>{type}</p>
-      <div className='flex items-center gap-2'>
+      <p className='canvas-label'>{type}</p>
+      <div className='flex items-center gap-1.5'>
         {quickColors.map(({ hex }) => (
           <button
             key={hex}
             className={clsx(
-              'flex h-6 w-6 cursor-pointer items-center justify-center rounded border-2 transition-all',
-              selectedColor === hex ? 'border-blue-500' : 'border-transparent',
+              'flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border-2 transition-all duration-150',
+              selectedColor === hex
+                ? 'border-[rgba(196,122,48,0.8)] shadow-[0_0_6px_rgba(196,122,48,0.35)]'
+                : 'border-transparent hover:border-white/20',
             )}
             style={{
               backgroundColor: hex === 'transparent' ? 'white' : hex,
@@ -112,13 +114,13 @@ const ColorPalette: React.FC<ColorPaletteProps> = ({
         ))}
 
         {/* Open Full Palette Button */}
-        <div className='ml-2 border-l border-l-gray-700 pl-2'>
+        <div className='ml-1 border-l border-white/10 pl-2'>
           <button
             onClick={() => setIsOpen(prev => !prev)}
             className={clsx(
-              'flex h-7 w-7 cursor-pointer items-center justify-center rounded border-2 transition-all',
+              'flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border-2 transition-all duration-150 hover:border-white/20',
               selectedColor === 'transparent'
-                ? 'border-gray-500 bg-white'
+                ? 'border-white/30'
                 : 'border-transparent',
             )}
             style={{
@@ -136,19 +138,21 @@ const ColorPalette: React.FC<ColorPaletteProps> = ({
 
       {/* Color Palette Dropdown */}
       {isOpen && (
-        <div className='bg-background absolute top-6 left-full z-10 ml-6 w-54 rounded-lg p-4 text-white shadow-md'>
-          <p className='mb-2 text-sm font-medium'>
+        <div className='canvas-panel absolute top-6 left-full z-10 ml-5 w-52 rounded-xl p-4 text-white'>
+          <p className='canvas-label mb-3'>
             {type === 'Stroke' ? 'Stroke Color' : 'Background Color'}
           </p>
 
           {/* Colors */}
-          <div className='mb-4 grid grid-cols-5 gap-2'>
+          <div className='mb-4 grid grid-cols-5 gap-1.5'>
             {colors.map(({ hex }) => (
               <button
                 key={hex}
                 className={clsx(
-                  'flex h-8 w-8 cursor-pointer items-center justify-center rounded border-2 transition-all',
-                  selectedColor === hex ? 'border-blue-500' : 'border-gray-700',
+                  'flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-2 transition-all duration-150',
+                  selectedColor === hex
+                    ? 'border-[rgba(196,122,48,0.8)] shadow-[0_0_6px_rgba(196,122,48,0.3)]'
+                    : 'border-transparent hover:border-white/25',
                 )}
                 style={{
                   backgroundColor: hex === 'transparent' ? 'white' : hex,
@@ -169,9 +173,9 @@ const ColorPalette: React.FC<ColorPaletteProps> = ({
           </div>
 
           {/* Hex Code Input */}
-          <p className='mb-2 text-sm font-medium'>Hex Code</p>
-          <div className='bg-lighter_background flex items-center gap-2 rounded-md p-2'>
-            <span className='text-gray-400'>#</span>
+          <p className='canvas-label mb-2'>Hex Code</p>
+          <div className='flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.04)] p-2'>
+            <span className='text-[rgba(175,162,142,0.5)] text-sm'>#</span>
             <input
               type='text'
               className='w-full bg-transparent text-white outline-none'

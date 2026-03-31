@@ -1,13 +1,13 @@
 @import 'tailwindcss';
 
 @theme {
-  /* ── Canvas / App Colors (unchanged) ─────────────────────── */
-  --color-background: #232329;
-  --color-light_background: #2a2a2a;
-  --color-lighter_background: #191919;
-  --color-tool_select: #47456d;
+  /* ── Canvas / App Colors ─────────────────────────────────── */
+  --color-background: #1c1c20;          /* warm near-black — panel surfaces    */
+  --color-light_background: #252528;    /* warm lifted — hover states          */
+  --color-lighter_background: #141416;  /* deepest warm — nested elements      */
+  --color-tool_select: #5c3a1c;         /* dark amber — selected bg fallback   */
 
-  /* Keep primary purple for canvas UI */
+  /* Primary (used in few places, keep for compat) */
   --color-primary: #6965db;
   --color-primary-chubb: #625ee0;
   --color-primary-darker: #5b57d1;
@@ -16,22 +16,18 @@
   --color-secondary: #223082;
 
   /* ── Landing Page Palette ─────────────────────────────────── */
-  /* Warm cream backgrounds */
   --color-lp-cream: #f9f6ef;
   --color-lp-cream-subtle: #f2ede2;
   --color-lp-cream-muted: #e8e2d4;
 
-  /* Terracotta / burnt-orange accent */
   --color-lp-accent: #e04e1f;
   --color-lp-accent-hover: #c94218;
   --color-lp-accent-soft: #f5e0d8;
 
-  /* Ink / text */
   --color-lp-ink: #1a1916;
   --color-lp-ink-muted: #7a7770;
   --color-lp-ink-faint: #b8b4ab;
 
-  /* Dark footer */
   --color-lp-dark: #141410;
   --color-lp-dark-surface: #1e1d18;
 }
@@ -44,4 +40,214 @@ html {
 
 body {
   overflow-x: hidden;
+}
+
+/* Canvas page — lock the document scroll so the fixed canvas
+   truly covers the whole screen and nothing can scroll behind it */
+body:has(.canvas-surface) {
+  overflow: hidden;
+  height: 100%;
+}
+
+/* ── Canvas surface — warm dark charcoal with subtle dot grid ── */
+.canvas-surface {
+  background-color: #191a1f;
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 240, 220, 0.055) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Canvas UI — Warm Forge Design System
+   Accent: amber-bronze #c47a30 — precise, premium, zero AI vibe
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Dark warm glass panel */
+.canvas-panel {
+  background: rgba(16, 16, 18, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Interactive canvas button — base */
+.canvas-btn {
+  color: rgba(210, 200, 185, 0.7);
+  transition:
+    background 0.13s ease,
+    color 0.13s ease,
+    box-shadow 0.13s ease,
+    transform 0.1s ease;
+}
+
+.canvas-btn:hover {
+  background: rgba(255, 245, 235, 0.06);
+  color: rgba(235, 228, 215, 1);
+  transform: translateY(-0.5px);
+}
+
+/* Selected / active — amber-bronze glow ring */
+.canvas-btn-selected {
+  background: rgba(196, 122, 48, 0.14);
+  color: rgba(220, 168, 100, 1);
+  box-shadow:
+    0 0 0 1px rgba(196, 122, 48, 0.48),
+    0 0 9px rgba(196, 122, 48, 0.1),
+    inset 0 0 14px rgba(196, 122, 48, 0.05);
+}
+
+/* Hairline vertical divider */
+.canvas-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 6px 0;
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+/* Section label — small-caps, warm muted */
+.canvas-label {
+  display: block;
+  font-size: 0.63rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(175, 162, 142, 0.5);
+  margin-bottom: 0.4rem;
+}
+
+/* Tooltip — warm glass pill */
+.canvas-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.94);
+  min-width: max-content;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: rgba(215, 205, 188, 0.9);
+  background: rgba(12, 12, 14, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease;
+}
+
+.group:hover .canvas-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+/* Hide tooltips on touch devices — hover doesn't apply */
+@media (max-width: 1023px) {
+  .canvas-tooltip {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Mobile Toolbar — Instrument Panel
+   Solid dark surface, tools recede until needed, amber ignites
+   on selection. No blur, no glow — pure precision hardware feel.
+   ══════════════════════════════════════════════════════════════ */
+
+/* The shelf itself — solid, no transparency on mobile for perf */
+.mobile-toolbar-panel {
+  background: #0d0d10;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Base button — dim until touched */
+.mobile-tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 8px 3px;
+  color: rgba(210, 195, 172, 0.32);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition:
+    color 0.13s ease,
+    background 0.13s ease,
+    box-shadow 0.13s ease,
+    transform 0.09s ease;
+}
+
+/* Press — punchy scale-down, very quick */
+.mobile-tool-btn:active {
+  transform: scale(0.84);
+  color: rgba(210, 195, 172, 0.65);
+  transition-duration: 0.06s;
+}
+
+/* Selected — amber bottom rail + warm fill */
+.mobile-tool-btn--active {
+  color: #e8aa5a;
+  background: rgba(196, 122, 48, 0.1);
+  box-shadow: inset 0 -2.5px 0 #c47a30;
+  transform: translateY(-1px);
+}
+
+.mobile-tool-btn--active:active {
+  transform: translateY(-1px) scale(0.88);
+}
+
+/* Label — monospace engraving style */
+.mobile-tool-label {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', monospace;
+  white-space: nowrap;
+}
+
+/* Lock-active — indicator LED, same amber rail */
+.mobile-tool-btn--lock-on {
+  color: #e8aa5a;
+  background: rgba(196, 122, 48, 0.13);
+  box-shadow: inset 0 -2.5px 0 #c47a30;
+}
+
+/* Clear — red danger, dim by default */
+.mobile-tool-btn--clear {
+  color: rgba(220, 70, 55, 0.42);
+}
+
+.mobile-tool-btn--clear:active {
+  color: rgba(230, 80, 60, 0.9);
+  transform: scale(0.84);
+}
+
+/* Vertical hairline between groups */
+.mobile-toolbar-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 12px 0;
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+/* Hide scrollbar but keep scroll behaviour */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

@@ -5,6 +5,7 @@ import CanvasFooter from './footer/canvas-footer';
 import CanvasHeader from './header/canvas-header';
 import { CanvasEngine } from '@/canvas_engine/CanvasEngine';
 import Sidebar from './sidebar/sidebar';
+import MobileToolbar from './toolbar/mobile-toolbar';
 import { useCanvasEngineStore } from '@/stores/canvas.store';
 import { useIsShapeSelectedStore } from '@/stores/shape_selected.store';
 import { useCanvasStyleStore } from '@/stores/canvas_style.store';
@@ -156,8 +157,10 @@ const Canvas: React.FC<CanvasProps> = ({ roomId }) => {
     if (!canvas) return;
 
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Use the canvas's rendered CSS size so the drawing buffer always
+      // matches the actual displayed area (robust on mobile viewports).
+      canvas.width = canvas.offsetWidth || window.innerWidth;
+      canvas.height = canvas.offsetHeight || window.innerHeight;
       if (!canvasEngine) return;
       canvasEngine.clearCanvas();
     };
@@ -202,8 +205,11 @@ const Canvas: React.FC<CanvasProps> = ({ roomId }) => {
   return (
     <>
       <CanvasHeader roomId={roomId} sendMessage={sendMessage} />
+
       <Sidebar selectedTool={selectedTool} />
-      <canvas ref={canvasRef} className='bg-[#1c1a1a] text-white' />
+      <canvas ref={canvasRef} className='canvas-surface fixed inset-0 z-0 h-screen w-screen touch-none' />
+      {/* Mobile bottom toolbar — only visible on < md */}
+      <MobileToolbar roomId={roomId} sendMessage={sendMessage} />
       <CanvasFooter />
     </>
   );
