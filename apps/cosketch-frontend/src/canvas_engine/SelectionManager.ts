@@ -21,6 +21,7 @@ export class SelectionManager {
   private sendMessage: (message: CanvasMessage) => void;
   private roomId: string;
   private dragDistance: number = 0;
+  private zoom: number = 1;
 
   private selectedShape: Shape | null = null; // Currently selected shape
 
@@ -49,6 +50,10 @@ export class SelectionManager {
     this.context = context;
     this.sendMessage = sendMessage;
     this.roomId = roomId;
+  }
+
+  public setZoom(zoom: number) {
+    this.zoom = zoom;
   }
 
   // Checks if a point (x,y) is inside a given shape
@@ -131,13 +136,14 @@ export class SelectionManager {
         translatedY * Math.cos(angleRad);
     }
 
+    const threshold = 6 / this.zoom;
     for (const [name, pos] of Object.entries(handles) as [
       ResizeHandle,
       { x: number; y: number },
     ][]) {
       if (
-        Math.abs(transformedX - pos.x) <= 6 &&
-        Math.abs(transformedY - pos.y) <= 6
+        Math.abs(transformedX - pos.x) <= threshold &&
+        Math.abs(transformedY - pos.y) <= threshold
       )
         return name;
     }
@@ -152,10 +158,10 @@ export class SelectionManager {
     // const centerY = (shape.y1 + shape.y2) / 2;
     const minY = Math.min(shape.y1, shape.y2);
 
-    // Place rotation handle above the shape
+    // Place rotation handle above the shape (constant screen-space distance)
     return {
       x: centerX,
-      y: minY - 25,
+      y: minY - 25 / this.zoom,
     };
   }
 
@@ -189,10 +195,10 @@ export class SelectionManager {
       const transformedX = centerX + rotatedX;
       const transformedY = centerY + rotatedY;
 
-      return Math.hypot(transformedX - handle.x, transformedY - handle.y) <= 8;
+      return Math.hypot(transformedX - handle.x, transformedY - handle.y) <= 8 / this.zoom;
     }
 
-    return Math.hypot(x - handle.x, y - handle.y) <= 8;
+    return Math.hypot(x - handle.x, y - handle.y) <= 8 / this.zoom;
   }
 
   // Begin rotation of the selected shape
@@ -394,7 +400,7 @@ export class SelectionManager {
 
     this.context.save();
     this.context.strokeStyle = '#625ee0';
-    this.context.lineWidth = 1;
+    this.context.lineWidth = 1 / this.zoom;
     this.context.strokeRect(minX, minY, maxX - minX, maxY - minY);
     this.context.fillStyle = 'rgba(98, 94, 224, 0.1)';
     this.context.fillRect(minX, minY, maxX - minX, maxY - minY);
@@ -550,6 +556,7 @@ export class SelectionManager {
 
   public drawRotationHandle(shape: Shape) {
     const handle = this.getRotationHandle(shape);
+    const iz = 1 / this.zoom;
 
     this.context.save();
 
@@ -558,20 +565,20 @@ export class SelectionManager {
     const centerY = (shape.y1 + shape.y2) / 2;
     this.context.beginPath();
     this.context.strokeStyle = '#625ee0';
-    this.context.lineWidth = 1;
-    this.context.setLineDash([3, 3]);
+    this.context.lineWidth = iz;
+    this.context.setLineDash([3 * iz, 3 * iz]);
     this.context.moveTo(centerX, centerY);
     this.context.lineTo(handle.x, handle.y);
     this.context.stroke();
 
     // Draw rotation handle
     this.context.beginPath();
-    this.context.arc(handle.x, handle.y, 6, 0, Math.PI * 2);
+    this.context.arc(handle.x, handle.y, 6 * iz, 0, Math.PI * 2);
     this.context.fillStyle = '#625ee0';
     this.context.fill();
     this.context.strokeStyle = '#625ee0';
     this.context.setLineDash([]);
-    this.context.lineWidth = 1.5;
+    this.context.lineWidth = 1.5 * iz;
     this.context.stroke();
 
     this.context.restore();
@@ -580,8 +587,12 @@ export class SelectionManager {
   // Enhanced version of drawing selection outline
 
   public drawSelectionOutline(shape: Shape) {
+    const iz = 1 / this.zoom;
+    const padding = 8 * iz;
+    const handleHalf = 4 * iz;
+    const handleSize = 8 * iz;
+
     if (shape.type === 'Freehand' && shape.paths) {
-      // For freehand shapes, draw a bounding box around the path
       const minX = Math.min(...shape.paths.map(p => p[0]));
       const maxX = Math.max(...shape.paths.map(p => p[0]));
       const minY = Math.min(...shape.paths.map(p => p[1]));
@@ -589,11 +600,9 @@ export class SelectionManager {
 
       this.context.save();
       this.context.strokeStyle = '#625ee0';
-      this.context.lineWidth = 1;
+      this.context.lineWidth = iz;
       this.context.setLineDash([]);
 
-      // Draw selection rectangle with padding
-      const padding = 8;
       this.context.strokeRect(
         minX - padding,
         minY - padding,
@@ -601,17 +610,16 @@ export class SelectionManager {
         maxY - minY + padding * 2,
       );
 
-      // Draw corner handles
       const cornerHandles = [
-        { x: minX - padding, y: minY - padding }, // top-left
-        { x: maxX + padding, y: minY - padding }, // top-right
-        { x: maxX + padding, y: maxY + padding }, // bottom-right
-        { x: minX - padding, y: maxY + padding }, // bottom-left
+        { x: minX - padding, y: minY - padding },
+        { x: maxX + padding, y: minY - padding },
+        { x: maxX + padding, y: maxY + padding },
+        { x: minX - padding, y: maxY + padding },
       ];
 
       for (const pos of cornerHandles) {
         this.context.beginPath();
-        this.context.rect(pos.x - 4, pos.y - 4, 8, 8);
+        this.context.rect(pos.x - handleHalf, pos.y - handleHalf, handleSize, handleSize);
         this.context.fillStyle = '#625ee0';
         this.context.fill();
         this.context.strokeStyle = '#625ee0';
@@ -624,17 +632,14 @@ export class SelectionManager {
 
     if (shape.type === 'Text') {
       const { x1, y1, x2, y2 } = shape;
-      const padding = 8;
-
       const width = x2 - x1;
       const height = y2 - y1;
 
       this.context.save();
       this.context.strokeStyle = '#625ee0';
-      this.context.lineWidth = 1;
+      this.context.lineWidth = iz;
       this.context.setLineDash([]);
 
-      // Draw bounding box with padding
       this.context.strokeRect(
         x1 - padding,
         y1 - padding,
@@ -642,17 +647,16 @@ export class SelectionManager {
         height + padding * 2,
       );
 
-      // Draw corner handles
       const cornerHandles = [
-        { x: x1 - padding, y: y1 - padding }, // top-left
-        { x: x2 + padding, y: y1 - padding }, // top-right
-        { x: x2 + padding, y: y2 + padding }, // bottom-right
-        { x: x1 - padding, y: y2 + padding }, // bottom-left
+        { x: x1 - padding, y: y1 - padding },
+        { x: x2 + padding, y: y1 - padding },
+        { x: x2 + padding, y: y2 + padding },
+        { x: x1 - padding, y: y2 + padding },
       ];
 
       for (const pos of cornerHandles) {
         this.context.beginPath();
-        this.context.rect(pos.x - 4, pos.y - 4, 8, 8);
+        this.context.rect(pos.x - handleHalf, pos.y - handleHalf, handleSize, handleSize);
         this.context.fillStyle = '#625ee0';
         this.context.fill();
         this.context.strokeStyle = '#625ee0';
@@ -663,7 +667,6 @@ export class SelectionManager {
       return;
     }
 
-    // Existing code for other shapes
     const { x1, y1, x2, y2 } = shape;
     const minX = Math.min(x1, x2);
     const minY = Math.min(y1, y2);
@@ -672,7 +675,6 @@ export class SelectionManager {
 
     this.context.save();
 
-    // Apply rotation if needed
     if (shape.rotation) {
       const centerX = (x1 + x2) / 2;
       const centerY = (y1 + y2) / 2;
@@ -681,37 +683,31 @@ export class SelectionManager {
       this.context.translate(-centerX, -centerY);
     }
 
-    // Draw selection rectangle
     this.context.strokeStyle = '#625ee0';
-    this.context.lineWidth = 1;
+    this.context.lineWidth = iz;
     this.context.setLineDash([]);
 
     if (shape.type === 'Line' || shape.type === 'Arrow') {
-      // For lines and arrows, draw endpoint handles with improved visibility
       const handles = [
         { x: x1, y: y1 },
         { x: x2, y: y2 },
       ];
 
       for (const pos of handles) {
-        // Draw outer circle for better visibility
         this.context.beginPath();
-        this.context.arc(pos.x, pos.y, 8, 0, Math.PI * 2);
+        this.context.arc(pos.x, pos.y, 8 * iz, 0, Math.PI * 2);
         this.context.fillStyle = 'rgba(255, 255, 255, 0.5)';
         this.context.fill();
 
-        // Draw inner circle
         this.context.beginPath();
-        this.context.arc(pos.x, pos.y, 6, 0, Math.PI * 2);
+        this.context.arc(pos.x, pos.y, 6 * iz, 0, Math.PI * 2);
         this.context.fillStyle = '#625ee0';
         this.context.fill();
         this.context.strokeStyle = '#625ee0';
-        this.context.lineWidth = 1.5;
+        this.context.lineWidth = 1.5 * iz;
         this.context.stroke();
       }
     } else {
-      // For other shapes, draw rectangular selection box with improved padding
-      const padding = 8;
       this.context.strokeRect(
         minX - padding,
         minY - padding,
@@ -719,29 +715,26 @@ export class SelectionManager {
         height + padding * 2,
       );
 
-      // Draw filled corner handles with improved visibility
       const cornerHandles = [
-        { x: minX - padding, y: minY - padding }, // top-left
-        { x: minX + width / 2, y: minY - padding }, // top-center
-        { x: minX + width + padding, y: minY - padding }, // top-right
-        { x: minX + width + padding, y: minY + height / 2 }, // middle-right
-        { x: minX + width + padding, y: minY + height + padding }, // bottom-right
-        { x: minX + width / 2, y: minY + height + padding }, // bottom-center
-        { x: minX - padding, y: minY + height + padding }, // bottom-left
-        { x: minX - padding, y: minY + height / 2 }, // middle-left
+        { x: minX - padding, y: minY - padding },
+        { x: minX + width / 2, y: minY - padding },
+        { x: minX + width + padding, y: minY - padding },
+        { x: minX + width + padding, y: minY + height / 2 },
+        { x: minX + width + padding, y: minY + height + padding },
+        { x: minX + width / 2, y: minY + height + padding },
+        { x: minX - padding, y: minY + height + padding },
+        { x: minX - padding, y: minY + height / 2 },
       ];
 
       for (const pos of cornerHandles) {
-        // White fill with blue border for better visibility
         this.context.beginPath();
-        this.context.rect(pos.x - 4, pos.y - 4, 8, 8);
+        this.context.rect(pos.x - handleHalf, pos.y - handleHalf, handleSize, handleSize);
         this.context.fillStyle = '#625ee0';
         this.context.fill();
         this.context.strokeStyle = '#625ee0';
         this.context.stroke();
       }
 
-      // Draw rotation handle
       this.drawRotationHandle(shape);
     }
 

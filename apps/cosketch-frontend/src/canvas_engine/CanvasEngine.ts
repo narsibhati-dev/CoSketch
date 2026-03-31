@@ -1,4 +1,5 @@
 import { Tool } from '@/type/tool';
+import { useViewportStore } from '@/stores/viewport.store';
 import cuid from 'cuid';
 import rough from 'roughjs';
 import { RoughCanvas } from 'roughjs/bin/canvas';
@@ -83,6 +84,21 @@ export class CanvasEngine {
   private isErasing: boolean = false;
   private eraserSize: number = 10;
 
+  // Viewport state (infinite canvas)
+  private zoom: number = 1;
+  private panX: number = 0;
+  private panY: number = 0;
+
+  // Panning state
+  private isPanning: boolean = false;
+  private panLastX: number = 0;
+  private panLastY: number = 0;
+  private isSpaceDown: boolean = false;
+
+  // Last eraser screen position (for redraw)
+  private lastEraserScreenX: number = -1;
+  private lastEraserScreenY: number = -1;
+
   /**
    * Initializes the drawing engine with canvas and room context
    */
@@ -128,9 +144,10 @@ export class CanvasEngine {
     this.canvas.addEventListener('pointerup', this.pointerUpHandler);
     this.canvas.addEventListener('pointercancel', this.pointerUpHandler);
     this.canvas.addEventListener('pointerout', this.pointerUpHandler);
+    this.canvas.addEventListener('wheel', this.wheelHandler, { passive: false });
 
-    // Add keyboard event listeners for modifier keys
     window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
   }
 
   /**
@@ -145,19 +162,123 @@ export class CanvasEngine {
     this.canvas.removeEventListener('pointerup', this.pointerUpHandler);
     this.canvas.removeEventListener('pointercancel', this.pointerUpHandler);
     this.canvas.removeEventListener('pointerout', this.pointerUpHandler);
+    this.canvas.removeEventListener('wheel', this.wheelHandler);
 
     window.removeEventListener('keydown', this.keyDownHandler);
+    window.removeEventListener('keyup', this.keyUpHandler);
   }
 
   /**
    * Handles key down events for modifier keys
    */
   private keyDownHandler = (event: KeyboardEvent) => {
+    // Space bar for panning (grab mode)
+    if (event.code === 'Space' && !this.isTextInputActive && !this.isSpaceDown) {
+      event.preventDefault();
+      this.isSpaceDown = true;
+      this.canvas.style.cursor = 'grab';
+      return;
+    }
+
+    // Zoom with keyboard shortcuts
+    if (!this.isTextInputActive) {
+      if (event.key === '+' || event.key === '=') {
+        event.preventDefault();
+        this.zoomBy(1.1);
+        return;
+      }
+      if (event.key === '-' || event.key === '_') {
+        event.preventDefault();
+        this.zoomBy(1 / 1.1);
+        return;
+      }
+      if ((event.key === '0') && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        this.resetViewport();
+        return;
+      }
+    }
+
     // Delete key for deleting selected shape
-    if (event.key === 'Delete' || event.key === 'Backspace') {
+    if ((event.key === 'Delete' || event.key === 'Backspace') && !this.isTextInputActive) {
       this.deleteSelectedShape();
     }
   };
+
+  private keyUpHandler = (event: KeyboardEvent) => {
+    if (event.code === 'Space') {
+      this.isSpaceDown = false;
+      this.isPanning = false;
+      // Restore cursor to default; tool effect hook in canvas.tsx will re-apply tool cursor
+      this.canvas.style.cursor = 'default';
+    }
+  };
+
+  private wheelHandler = (event: WheelEvent) => {
+    event.preventDefault();
+
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    if (event.ctrlKey || event.metaKey) {
+      // Pinch-to-zoom or ctrl+wheel zoom
+      const zoomFactor = event.deltaY < 0 ? 1.08 : 1 / 1.08;
+      this.zoomAt(mouseX, mouseY, zoomFactor);
+    } else {
+      // Pan with scroll wheel
+      this.panX -= event.deltaX;
+      this.panY -= event.deltaY;
+      this.selectionManager.setZoom(this.zoom);
+      this.notifyViewportChange();
+      this.clearCanvas();
+    }
+  };
+
+  /** Converts screen-space coordinates to world-space coordinates */
+  private screenToWorld(screenX: number, screenY: number): { x: number; y: number } {
+    return {
+      x: (screenX - this.panX) / this.zoom,
+      y: (screenY - this.panY) / this.zoom,
+    };
+  }
+
+  /** Zoom toward/away from a screen-space point */
+  private zoomAt(screenX: number, screenY: number, factor: number) {
+    const MIN_ZOOM = 0.5;
+    const MAX_ZOOM = 3;
+    const newZoom = Math.min(Math.max(this.zoom * factor, MIN_ZOOM), MAX_ZOOM);
+    // Keep the world point under the cursor fixed
+    this.panX = screenX - (screenX - this.panX) * (newZoom / this.zoom);
+    this.panY = screenY - (screenY - this.panY) * (newZoom / this.zoom);
+    this.zoom = newZoom;
+    this.selectionManager.setZoom(this.zoom);
+    this.notifyViewportChange();
+    this.clearCanvas();
+  }
+
+  /** Zoom toward/away from the center of the viewport */
+  public zoomBy(factor: number) {
+    this.zoomAt(this.canvas.width / 2, this.canvas.height / 2, factor);
+  }
+
+  /** Reset pan and zoom to default */
+  public resetViewport() {
+    this.zoom = 1;
+    this.panX = 0;
+    this.panY = 0;
+    this.selectionManager.setZoom(1);
+    this.notifyViewportChange();
+    this.clearCanvas();
+  }
+
+  public getZoom(): number {
+    return this.zoom;
+  }
+
+  private notifyViewportChange() {
+    useViewportStore.getState().setZoom(this.zoom);
+  }
 
   /**
    * Deletes selected shapes
@@ -201,13 +322,15 @@ export class CanvasEngine {
    * Converts ShapeOptions to RoughJS format
    */
   private convertToRoughOptions(options: ShapeOptions) {
+    // Divide strokeWidth by zoom so strokes appear the same thickness
+    // regardless of zoom level (Excalidraw-style constant visual stroke).
     return {
       roughness: this.roughnessLevels[options.roughness],
       stroke: options.strokeColor,
-      strokeWidth: this.strokeWidths[options.strokeWidth],
+      strokeWidth: this.strokeWidths[options.strokeWidth] / this.zoom,
       fill: options.fillColor,
       fillStyle: options.fillStyle,
-      strokeLineDash: this.strokeStyles[options.strokeStyle],
+      strokeLineDash: this.strokeStyles[options.strokeStyle].map(v => v / this.zoom),
       seed: options.seed,
     };
   }
@@ -217,8 +340,21 @@ export class CanvasEngine {
    */
   private pointerDownHandler = (event: PointerEvent) => {
     const rect = this.canvas.getBoundingClientRect();
-    this.x1 = event.clientX - rect.left;
-    this.y1 = event.clientY - rect.top;
+    const screenX = event.clientX - rect.left;
+    const screenY = event.clientY - rect.top;
+
+    // Middle mouse button or space+drag → pan
+    if (event.button === 1 || this.isSpaceDown) {
+      this.isPanning = true;
+      this.panLastX = screenX;
+      this.panLastY = screenY;
+      this.canvas.style.cursor = 'grabbing';
+      return;
+    }
+
+    const { x: worldX, y: worldY } = this.screenToWorld(screenX, screenY);
+    this.x1 = worldX;
+    this.y1 = worldY;
 
     if (this.selectedTool === 'Text') {
       this.startTextInput(event.clientX, event.clientY);
@@ -227,7 +363,11 @@ export class CanvasEngine {
 
     if (this.selectedTool === 'Eraser') {
       this.isErasing = true;
+      this.lastEraserScreenX = screenX;
+      this.lastEraserScreenY = screenY;
       this.eraseAtPoint(this.x1, this.y1);
+      this.clearCanvas();
+      this.drawEraserCursor(screenX, screenY);
       return;
     }
 
@@ -315,33 +455,47 @@ export class CanvasEngine {
    */
   private pointerMoveHandler = (event: PointerEvent) => {
     const rect = this.canvas.getBoundingClientRect();
-    const currentX = event.clientX - rect.left;
-    const currentY = event.clientY - rect.top;
+    const screenX = event.clientX - rect.left;
+    const screenY = event.clientY - rect.top;
+
+    // Handle panning
+    if (this.isPanning) {
+      this.panX += screenX - this.panLastX;
+      this.panY += screenY - this.panLastY;
+      this.panLastX = screenX;
+      this.panLastY = screenY;
+      this.notifyViewportChange();
+      this.clearCanvas();
+      return;
+    }
+
+    const { x: worldX, y: worldY } = this.screenToWorld(screenX, screenY);
 
     // Only handle eraser if the pointer is actually over the canvas
     if (this.selectedTool === 'Eraser') {
-      // Check if pointer is within canvas bounds
       const isOverCanvas =
-        currentX >= 0 &&
-        currentX <= this.canvas.width &&
-        currentY >= 0 &&
-        currentY <= this.canvas.height;
+        screenX >= 0 &&
+        screenX <= this.canvas.width &&
+        screenY >= 0 &&
+        screenY <= this.canvas.height;
 
       if (isOverCanvas) {
         if (this.isErasing) {
-          this.eraseAtPoint(currentX, currentY);
+          this.eraseAtPoint(worldX, worldY);
         }
+        this.lastEraserScreenX = screenX;
+        this.lastEraserScreenY = screenY;
         this.clearCanvas();
-        this.drawEraserCursor(currentX, currentY);
+        this.drawEraserCursor(screenX, screenY);
       } else {
-        // If not over canvas, just clear any eraser cursor
+        this.lastEraserScreenX = -1;
         this.clearCanvas();
       }
       return;
     }
 
     if (this.selectedTool === 'Freehand' && this.isDrawingFreehand) {
-      this.paths.push([currentX, currentY]);
+      this.paths.push([worldX, worldY]);
       this.pressures.push(event.pressure || 0.5);
       this.clearCanvas();
       this.drawFreehandPath();
@@ -349,37 +503,38 @@ export class CanvasEngine {
     }
 
     // Update cursor style based on what's under the cursor
-    this.selectionManager.updateCursor(currentX, currentY);
+    if (!this.isSpaceDown) {
+      this.selectionManager.updateCursor(worldX, worldY);
+    }
 
     if (this.action === 'drawing') {
-      this.x2 = currentX;
-      this.y2 = currentY;
+      this.x2 = worldX;
+      this.y2 = worldY;
       this.clearCanvas();
       this.previewShape();
     } else if (
       this.action === 'moving' &&
       this.selectionManager.getSelectedShape()
     ) {
-      const deltaX = currentX - this.x1;
-      const deltaY = currentY - this.y1;
+      const deltaX = worldX - this.x1;
+      const deltaY = worldY - this.y1;
       this.selectionManager.updateDrag(deltaX, deltaY);
-      this.x1 = currentX;
-      this.y1 = currentY;
+      this.x1 = worldX;
+      this.y1 = worldY;
       this.clearCanvas();
     } else if (this.action === 'resizing') {
-      const deltaX = currentX - this.x1;
-      const deltaY = currentY - this.y1;
+      const deltaX = worldX - this.x1;
+      const deltaY = worldY - this.y1;
       this.selectionManager.updateResize(deltaX, deltaY);
-      this.x1 = currentX;
-      this.y1 = currentY;
+      this.x1 = worldX;
+      this.y1 = worldY;
       this.clearCanvas();
     } else if (this.action === 'rotating') {
-      this.selectionManager.updateRotation(currentX, currentY);
+      this.selectionManager.updateRotation(worldX, worldY);
       this.clearCanvas();
     } else if (this.action === 'marquee-selecting') {
-      this.selectionManager.updateMarqueeSelection(currentX, currentY);
+      this.selectionManager.updateMarqueeSelection(worldX, worldY);
       this.clearCanvas();
-      this.selectionManager.drawMarqueeSelection();
     }
   };
 
@@ -387,9 +542,17 @@ export class CanvasEngine {
    * Handles pointer up events to finalize drawing, moving, or resizing
    */
   private pointerUpHandler = (event: PointerEvent) => {
+    // End panning
+    if (this.isPanning) {
+      this.isPanning = false;
+      this.canvas.style.cursor = this.isSpaceDown ? 'grab' : 'default';
+      return;
+    }
+
     if (this.selectedTool === 'Eraser') {
       this.isErasing = false;
-      this.clearCanvas(); // Clear any remaining eraser cursor
+      this.lastEraserScreenX = -1;
+      this.clearCanvas();
       return;
     }
 
@@ -423,8 +586,11 @@ export class CanvasEngine {
 
     if (this.action === 'drawing') {
       const rect = this.canvas.getBoundingClientRect();
-      this.x2 = event.clientX - rect.left;
-      this.y2 = event.clientY - rect.top;
+      const screenX = event.clientX - rect.left;
+      const screenY = event.clientY - rect.top;
+      const { x: worldX, y: worldY } = this.screenToWorld(screenX, screenY);
+      this.x2 = worldX;
+      this.y2 = worldY;
       this.drawShape();
     } else if (this.action === 'moving') {
       this.selectionManager.getSelectedShape();
@@ -462,11 +628,18 @@ export class CanvasEngine {
       roughOptions,
     );
 
+    // Apply viewport transform for preview rendering in world space
+    this.context.save();
+    this.context.translate(this.panX, this.panY);
+    this.context.scale(this.zoom, this.zoom);
+
     if (Array.isArray(drawable)) {
       drawable.forEach(d => this.rc.draw(d));
     } else if (drawable) {
       this.rc.draw(drawable);
     }
+
+    this.context.restore();
   }
 
   /**
@@ -515,13 +688,13 @@ export class CanvasEngine {
 
         const stroke = getStroke(shape.paths, {
           size:
-            (this.strokeWidths[shape.options.strokeWidth] + 1) *
+            ((this.strokeWidths[shape.options.strokeWidth] + 1) *
             3 *
             (shape.pressures
               ? 1 +
                 shape.pressures.reduce((a, b) => a + b, 0) /
                   shape.pressures.length
-              : 1),
+              : 1)) / this.zoom,
           thinning:
             0.5 +
             (shape.pressures
@@ -700,6 +873,10 @@ export class CanvasEngine {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.save();
 
+    // Apply viewport transform: translate then scale
+    this.context.translate(this.panX, this.panY);
+    this.context.scale(this.zoom, this.zoom);
+
     this.drawAllShapes();
 
     // Draw selection outline for selected shape
@@ -712,6 +889,11 @@ export class CanvasEngine {
     this.selectionManager.drawMarqueeSelection();
 
     this.context.restore();
+
+    // Draw eraser cursor in screen space (outside viewport transform)
+    if (this.selectedTool === 'Eraser' && this.lastEraserScreenX >= 0) {
+      this.drawEraserCursor(this.lastEraserScreenX, this.lastEraserScreenY);
+    }
   }
 
   /**
@@ -972,30 +1154,24 @@ export class CanvasEngine {
   private drawFreehandPath() {
     if (this.paths.length < 2) return;
 
-    // Calculate average pressure for the current stroke
     const avgPressure =
       this.pressures.reduce((a, b) => a + b, 0) / this.pressures.length;
 
     const stroke = getStroke(this.paths, {
-      size: (this.strokeWidths[this.strokeWidth] + 1) * 3 * (1 + avgPressure), // Reduced base size multiplier from 4 to 3
+      size: (this.strokeWidths[this.strokeWidth] + 1) * 3 * (1 + avgPressure) / this.zoom,
       thinning: 0.5 + avgPressure * 0.5,
       smoothing: 0.5,
       streamline: 0.5,
       simulatePressure: true,
       easing: t => t,
-      start: {
-        taper: 0,
-        cap: true,
-        easing: t => t,
-      },
-      end: {
-        taper: 0,
-        cap: true,
-        easing: t => t,
-      },
+      start: { taper: 0, cap: true, easing: t => t },
+      end: { taper: 0, cap: true, easing: t => t },
     });
 
     this.context.save();
+    // Apply viewport transform so in-progress freehand renders in world space
+    this.context.translate(this.panX, this.panY);
+    this.context.scale(this.zoom, this.zoom);
     this.context.fillStyle = this.strokeColor;
     this.context.beginPath();
 
@@ -1116,19 +1292,26 @@ export class CanvasEngine {
       const rect = textInput.getBoundingClientRect();
       const canvasRect = this.canvas.getBoundingClientRect();
 
-      // Measure text width for more accurate sizing
+      // Convert screen position to world coords
+      const screenX = rect.left - canvasRect.left;
+      const screenY = rect.top - canvasRect.top;
+      const { x: worldX, y: worldY } = this.screenToWorld(screenX, screenY);
+
+      // Measure text width in world units (context is not scaled here so divide by zoom)
       this.context.save();
       this.context.font = '32px Comic Sans MS, cursive';
-      const textWidth = this.context.measureText(text).width;
+      const textWidth = this.context.measureText(text).width / this.zoom;
       this.context.restore();
+
+      const textHeight = 40 / this.zoom;
 
       const newShape: Shape = {
         id: cuid(),
         type: 'Text',
-        x1: rect.left - canvasRect.left,
-        y1: rect.top - canvasRect.top,
-        x2: rect.left - canvasRect.left + textWidth,
-        y2: rect.bottom - canvasRect.top,
+        x1: worldX,
+        y1: worldY,
+        x2: worldX + textWidth,
+        y2: worldY + textHeight,
         text: text,
         options: this.getShapeOptions(),
       };
